@@ -25,5 +25,5 @@ provider "google" {
 
 provider "google-beta" {
   billing_project       = var.billing_project
-  user_project_override = true
+  user_project_override = false
 }
