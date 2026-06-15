@@ -378,7 +378,7 @@ github_repos = {
 }
 ```
 
-A new service account `sa-cicd-controls-app` is created and bound to the WIF pool
+Terraform will bind the pre-created service account `sa-cicd-controls-app` to the WIF pool
 scoped to that specific repository.
 
 ---

@@ -59,37 +59,18 @@ resource "google_iam_workload_identity_pool_provider" "github_oidc" {
   depends_on = [google_iam_workload_identity_pool.github]
 }
 
-# ─── CICD Service Accounts (one per GitHub repo) ─────────────────────────────
-resource "google_service_account" "cicd_sas" {
-  for_each = local.wif_sa_map
 
-  project      = var.project_id
-  account_id   = each.value.sa_id
-  display_name = "CICD SA – ${each.value.repo_name}"
-  description  = each.value.sa_desc
-}
-
-# ─── Seed Service Accounts ────────────────────────────────────────────────────
-resource "google_service_account" "seed_sas" {
-  for_each = var.seed_service_accounts
-
-  project      = var.project_id
-  account_id   = each.key
-  display_name = each.value.display_name
-  description  = each.value.description
-}
 
 # ─── Bind WIF pool to each CICD SA (per-repo attribute condition) ─────────────
 resource "google_service_account_iam_member" "wif_bindings" {
   for_each = local.wif_sa_map
 
-  service_account_id = google_service_account.cicd_sas[each.key].name
+  service_account_id = "projects/${var.project_id}/serviceAccounts/${each.value.sa_id}@${var.project_id}.iam.gserviceaccount.com"
   role               = "roles/iam.workloadIdentityUser"
   # Allow any ref in the specific repo to impersonate this SA
   member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${each.value.repo_name}"
 
   depends_on = [
-    google_service_account.cicd_sas,
     google_iam_workload_identity_pool_provider.github_oidc
   ]
 }
@@ -112,7 +93,5 @@ resource "google_project_iam_member" "cicd_sa_roles" {
 
   project = var.project_id
   role    = each.value.role
-  member  = "serviceAccount:${google_service_account.cicd_sas[each.value.sa_key].email}"
-
-  depends_on = [google_service_account.cicd_sas]
+  member  = "serviceAccount:sa-cicd-${each.value.sa_key}@${var.project_id}.iam.gserviceaccount.com"
 }
