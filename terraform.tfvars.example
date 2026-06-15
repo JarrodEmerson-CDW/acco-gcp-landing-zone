@@ -54,7 +54,7 @@ github_repos = {
 }
 
 seed_service_accounts = {
-  "sa-tf-org" = {
+  "ACCO-sa-terraform" = {
     display_name  = "Terraform Org-Level SA"
     description   = "Used for org-level Terraform applies (org, folders, policies)"
     project_roles = ["roles/iam.serviceAccountTokenCreator"]
@@ -81,7 +81,7 @@ top_level_folders = {
     has_bu_subs = true
   }
   "prod" = {
-    code        = "pd"
+    code        = "prd"
     has_bu_subs = true
   }
   "shared-services" = {
@@ -192,8 +192,8 @@ projects = {
       "networkmanagement.googleapis.com",
     ]
   }
-  "pd-network" = {
-    env_code  = "pd"
+  "prd-network" = {
+    env_code  = "prd"
     app       = "network"
     folder_id = "folders/<networking_subfolder_id>"
     additional_apis = [
@@ -214,27 +214,27 @@ projects = {
   }
 
   # ── Logging / monitoring projects ─────────────────────────────────────────
-  "dv-logging" = {
+  "dv-log-mon" = {
     env_code  = "dv"
-    app       = "logging"
+    app       = "log-mon"
     folder_id = "folders/<infrastructure_subfolder_id>"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
     ]
   }
-  "np-logging" = {
+  "np-log-mon" = {
     env_code  = "np"
-    app       = "logging"
+    app       = "log-mon"
     folder_id = "folders/<infrastructure_subfolder_id>"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
     ]
   }
-  "pd-logging" = {
-    env_code  = "pd"
-    app       = "logging"
+  "prd-log-mon" = {
+    env_code  = "prd"
+    app       = "log-mon"
     folder_id = "folders/<infrastructure_subfolder_id>"
     additional_apis = [
       "pubsub.googleapis.com",
@@ -262,6 +262,21 @@ projects = {
       "iamcredentials.googleapis.com",
       "sts.googleapis.com",
       "storage.googleapis.com",
+      "cloudresourcemanager.googleapis.com",
+      "cloudbilling.googleapis.com",
+      "orgpolicy.googleapis.com",
+      "servicenetworking.googleapis.com",
+      "compute.googleapis.com",
+      "dns.googleapis.com",
+      "monitoring.googleapis.com",
+      "logging.googleapis.com",
+      "pubsub.googleapis.com",
+      "bigquery.googleapis.com",
+      "cloudbuild.googleapis.com",
+      "artifactregistry.googleapis.com",
+      "secretmanager.googleapis.com",
+      "securitycenter.googleapis.com",
+      "accesscontextmanager.googleapis.com",
     ]
     skip_delete = true
   }
@@ -283,40 +298,22 @@ hub_project_id   = "prj-sh-interconnect"
 hub_network_name = "vpc-interconnect"
 
 hub_subnets = {
-  # Inside subnet for Meraki/VPN appliance (optional — comment out if not used)
-  "sn-interconnect-inside-usw2" = {
-    ip_cidr_range = "10.146.1.0/24"
-    region        = "us-west2"
-    description   = "Inside subnet for Meraki/VPN appliance"
+  # Primary interconnect subnet — us-west1 (TDD: 10.146.0.0/27)
+  "interconnect-subnet-us-west1" = {
+    ip_cidr_range = "10.146.0.0/27"
+    region        = "us-west1"
+    description   = "Primary interconnect subnet us-west1"
   }
-  # Outside subnet for Meraki/VPN appliance
-  "sn-interconnect-outside-usw2" = {
-    ip_cidr_range = "10.146.2.0/24"
-    region        = "us-west2"
-    description   = "Outside subnet for Meraki/VPN appliance"
-  }
-  # Management subnet for Meraki/VPN appliance
-  "sn-interconnect-mgmt-usw2" = {
-    ip_cidr_range = "10.146.3.0/24"
-    region        = "us-west2"
-    description   = "Management subnet for Meraki/VPN appliance"
-  }
-  # General interconnect subnet
-  "sn-interconnect-primary-usw2" = {
-    ip_cidr_range = "10.146.4.0/24"
-    region        = "us-west2"
-    description   = "Primary interconnect subnet"
-  }
-  # Secondary region
-  "sn-interconnect-primary-usc1" = {
-    ip_cidr_range = "10.146.5.0/24"
+  # Secondary interconnect subnet — us-central1 (TDD: 10.146.0.32/27)
+  "interconnect-subnet-us-central1" = {
+    ip_cidr_range = "10.146.0.32/27"
     region        = "us-central1"
-    description   = "Secondary interconnect subnet"
+    description   = "Secondary interconnect subnet us-central1"
   }
 }
 
 hub_nat_config = {
-  "us-west2" = {
+  "us-west1" = {
     nat_ip_allocate_option = "AUTO_ONLY"
     log_config_enable      = false
   }
@@ -361,19 +358,19 @@ spoke_vpcs = {
       # "prj-dv-controls-app1",
     ]
     subnets = {
-      "sn-dev-primary-usw2" = {
+      "dev-vpc-subnet-primary-us-west1" = {
         ip_cidr_range = "10.143.1.0/24"
-        region        = "us-west2"
-        description   = "Dev primary subnet us-west2"
+        region        = "us-west1"
+        description   = "Dev primary subnet us-west1"
       }
-      "sn-dev-secondary-usc1" = {
+      "dev-vpc-subnet-secondary-us-central1" = {
         ip_cidr_range = "10.143.2.0/24"
         region        = "us-central1"
         description   = "Dev secondary subnet us-central1"
       }
     }
     nat_config = {
-      "us-west2"    = { nat_ip_allocate_option = "AUTO_ONLY" }
+      "us-west1"    = { nat_ip_allocate_option = "AUTO_ONLY" }
       "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
     }
     firewall_rules = {
@@ -398,6 +395,13 @@ spoke_vpcs = {
         allow     = [{ protocol = "all" }]
         description = "Allow internal dev traffic"
       }
+      "fw-dev-allow-ingress-from-interconnect" = {
+        direction = "INGRESS"
+        priority  = 900
+        ranges    = ["10.146.0.0/16"]
+        allow     = [{ protocol = "all" }]
+        description = "Allow ingress from interconnect (on-prem via hub)"
+      }
     }
   }
 
@@ -407,19 +411,19 @@ spoke_vpcs = {
     cidr_block      = "10.144.0.0/16"
     service_project_ids = []
     subnets = {
-      "sn-np-primary-usw2" = {
+      "np-vpc-subnet-primary-us-west1" = {
         ip_cidr_range = "10.144.1.0/24"
-        region        = "us-west2"
-        description   = "Non-prod primary subnet us-west2"
+        region        = "us-west1"
+        description   = "Non-prod primary subnet us-west1"
       }
-      "sn-np-secondary-usc1" = {
+      "np-vpc-subnet-secondary-us-central1" = {
         ip_cidr_range = "10.144.2.0/24"
         region        = "us-central1"
         description   = "Non-prod secondary subnet us-central1"
       }
     }
     nat_config = {
-      "us-west2"    = { nat_ip_allocate_option = "AUTO_ONLY" }
+      "us-west1"    = { nat_ip_allocate_option = "AUTO_ONLY" }
       "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
     }
     firewall_rules = {
@@ -441,48 +445,62 @@ spoke_vpcs = {
         ranges    = ["10.144.0.0/16"]
         allow     = [{ protocol = "all" }]
       }
+      "fw-np-allow-ingress-from-interconnect" = {
+        direction = "INGRESS"
+        priority  = 900
+        ranges    = ["10.146.0.0/16"]
+        allow     = [{ protocol = "all" }]
+        description = "Allow ingress from interconnect (on-prem via hub)"
+      }
     }
   }
 
   "prod" = {
-    host_project_id = "prj-pd-network"
+    host_project_id = "prj-prd-network"
     network_name    = "vpc-prod"
     cidr_block      = "10.145.0.0/16"
     service_project_ids = []
     subnets = {
-      "sn-pd-primary-usw2" = {
+      "prd-vpc-subnet-primary-us-west1" = {
         ip_cidr_range = "10.145.1.0/24"
-        region        = "us-west2"
-        description   = "Prod primary subnet us-west2"
+        region        = "us-west1"
+        description   = "Prod primary subnet us-west1"
       }
-      "sn-pd-secondary-usc1" = {
+      "prd-vpc-subnet-secondary-us-central1" = {
         ip_cidr_range = "10.145.2.0/24"
         region        = "us-central1"
         description   = "Prod secondary subnet us-central1"
       }
     }
     nat_config = {
-      "us-west2"    = { nat_ip_allocate_option = "AUTO_ONLY" }
+      "us-west1"    = { nat_ip_allocate_option = "AUTO_ONLY" }
       "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
     }
     firewall_rules = {
-      "fw-pd-deny-egress-default" = {
+      "fw-prd-deny-egress-default" = {
         direction = "EGRESS"
         priority  = 65534
         ranges    = ["0.0.0.0/0"]
         deny      = [{ protocol = "all" }]
       }
-      "fw-pd-allow-iap-ingress" = {
+      "fw-prd-allow-iap-ingress" = {
         direction = "INGRESS"
         priority  = 1000
         ranges    = ["35.235.240.0/20"]
         allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
       }
-      "fw-pd-allow-internal-ingress" = {
+      "fw-prd-allow-internal-ingress" = {
         direction = "INGRESS"
         priority  = 1000
         ranges    = ["10.145.0.0/16"]
         allow     = [{ protocol = "all" }]
+      }
+      "fw-prd-allow-ingress-from-interconnect" = {
+        direction = "INGRESS"
+        priority  = 900
+        ranges    = ["10.146.0.0/16"]
+        allow     = [{ protocol = "all" }]
+        description = "Allow ingress from interconnect (on-prem via hub)"
       }
     }
   }
@@ -492,22 +510,32 @@ spoke_vpcs = {
 dns_project_id = "prj-sh-interconnect"
 
 private_dns_zones = {
-  "accoes-internal" = {
+  "private-hub-core" = {
     dns_name    = "accoes.internal."
-    description = "ACCO internal private DNS zone"
+    description = "ACCO internal private DNS zone (hub)"
     networks    = [
       # Add VPC self-links after networking apply:
       # "https://www.googleapis.com/compute/v1/projects/prj-sh-interconnect/global/networks/vpc-interconnect",
-      # "https://www.googleapis.com/compute/v1/projects/prj-dv-network/global/networks/vpc-dev",
     ]
   }
 }
 
 peering_dns_zones = {
-  # Uncomment to configure peering zones from spokes to hub
-  # "dev-to-hub-internal" = {
+  # Peering zones from each spoke VPC to the hub for accoes.internal resolution
+  # Uncomment and fill in VPC self-links after networking apply.
+  # "peer-dev-to-hub" = {
   #   dns_name     = "accoes.internal."
   #   networks     = ["<dev-vpc-self-link>"]
+  #   peer_network = "<hub-vpc-self-link>"
+  # }
+  # "peer-non-prod-to-hub" = {
+  #   dns_name     = "accoes.internal."
+  #   networks     = ["<np-vpc-self-link>"]
+  #   peer_network = "<hub-vpc-self-link>"
+  # }
+  # "peer-prod-to-hub" = {
+  #   dns_name     = "accoes.internal."
+  #   networks     = ["<prd-vpc-self-link>"]
   #   peer_network = "<hub-vpc-self-link>"
   # }
 }
@@ -574,10 +602,10 @@ iam_bindings = {
     member        = "group:gcp-np-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
-  "folder/pd/gcp-pd-admins/folder-admin" = {
+  "folder/prd/gcp-prd-admins/folder-admin" = {
     resource_type = "folder"
     resource_id   = "folders/<folder_id_prod>"
-    member        = "group:gcp-pd-admins@accoes.com"
+    member        = "group:gcp-prd-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
 
@@ -587,6 +615,100 @@ iam_bindings = {
     resource_id   = "folders/<dv_controls_folder_id>"
     member        = "group:gcp-dv-controls-admins@accoes.com"
     role          = "roles/editor"
+  }
+
+  # ── Security Admins ────────────────────────────────────────────────────────
+  "org/security-admins/viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-security-admins@accoes.com"
+    role          = "roles/viewer"
+  }
+  "org/security-admins/scc-admin" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-security-admins@accoes.com"
+    role          = "roles/securitycenter.admin"
+  }
+  "org/security-admins/iam-security-admin" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-security-admins@accoes.com"
+    role          = "roles/iam.securityAdmin"
+  }
+
+  # ── Gemini / AI Users ──────────────────────────────────────────────────────
+  "org/gemini-users/discovery-viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-gemini-user@accoes.com"
+    role          = "roles/discoveryengine.viewer"
+  }
+  "org/gemini-users/aiplatform-user" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-gemini-user@accoes.com"
+    role          = "roles/aiplatform.user"
+  }
+
+  # ── Gemini / AI Admins ─────────────────────────────────────────────────────
+  "org/gemini-admins/discovery-admin" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-gemini-admins@accoes.com"
+    role          = "roles/discoveryengine.admin"
+  }
+  "org/gemini-admins/aiplatform-admin" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-gemini-admins@accoes.com"
+    role          = "roles/aiplatform.admin"
+  }
+
+  # ── Service Desk Admins ────────────────────────────────────────────────────
+  "org/service-desk-admins/viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-admins@accoes.com"
+    role          = "roles/viewer"
+  }
+  "org/service-desk-admins/log-viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-admins@accoes.com"
+    role          = "roles/logging.viewer"
+  }
+  "org/service-desk-admins/mon-viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-admins@accoes.com"
+    role          = "roles/monitoring.viewer"
+  }
+  "org/service-desk-admins/support-admin" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-admins@accoes.com"
+    role          = "roles/cloudsupport.admin"
+  }
+
+  # ── Service Desk Users ─────────────────────────────────────────────────────
+  "org/service-desk-users/viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-users@accoes.com"
+    role          = "roles/viewer"
+  }
+  "org/service-desk-users/log-viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-users@accoes.com"
+    role          = "roles/logging.viewer"
+  }
+  "org/service-desk-users/mon-viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-service-desk-users@accoes.com"
+    role          = "roles/monitoring.viewer"
   }
 
   # ── USER group bindings (empty by default — add per app) ───────────────────
@@ -625,7 +747,7 @@ service_accounts = {
 # ── Log Sinks ─────────────────────────────────────────────────────────────────
 log_sinks = {
   "dev-org-sink" = {
-    sink_project_id  = "prj-dv-logging"
+    sink_project_id  = "prj-dv-log-mon"
     sink_name        = "sink-dv-org"
     parent_type      = "folder"
     parent_id        = "folders/<folder_id_dev>"
@@ -645,7 +767,7 @@ log_sinks = {
   }
 
   "np-org-sink" = {
-    sink_project_id      = "prj-np-logging"
+    sink_project_id      = "prj-np-log-mon"
     sink_name            = "sink-np-org"
     parent_type          = "folder"
     parent_id            = "folders/<folder_id_non_prod>"
@@ -661,49 +783,41 @@ log_sinks = {
     labels = { environment = "np" }
   }
 
-  "pd-org-sink" = {
-    sink_project_id      = "prj-pd-logging"
-    sink_name            = "sink-pd-org"
+  "prd-org-sink" = {
+    sink_project_id      = "prj-prd-log-mon"
+    sink_name            = "sink-prd-org"
     parent_type          = "folder"
     parent_id            = "folders/<folder_id_prod>"
     filter               = ""
     include_children     = true
-    bucket_name          = "bkt-pd-logs-acco"
+    bucket_name          = "bkt-prd-logs-acco"
     bucket_location      = "US"
     retention_days       = 90
     audit_retention_days = 400
     nearline_age_days    = 30
     archive_age_days     = 90
-    pubsub_topic_name    = "topic-pd-logs"
-    labels = { environment = "pd" }
+    pubsub_topic_name    = "topic-prd-logs"
+    labels = { environment = "prd" }
   }
 }
 
 # ── Budgets ────────────────────────────────────────────────────────────────────
 budgets = {
-  "acco-total-monthly" = {
-    amount_usd        = 50000
-    project_ids       = []   # empty = entire billing account
-    alert_thresholds  = [0.5, 0.75, 0.9, 1.0]
-    include_credits   = false
+  # Fixed-dollar alert: fires when spend reaches 50%, 90%, or 100% of $500
+  "dollar-billing-alert" = {
+    amount_usd            = 500
+    use_last_period_amount = false
+    project_ids           = []   # empty = entire billing account
+    alert_thresholds      = [0.5, 0.9, 1.0]
+    include_credits       = false
     notification_channels = []
   }
-  "acco-prod-monthly" = {
-    amount_usd   = 30000
-    project_ids  = [
-      "prj-pd-network",
-      "prj-pd-logging",
-    ]
-    alert_thresholds = [0.5, 0.75, 0.9, 1.0]
-    include_credits  = false
-  }
-  "acco-dev-monthly" = {
-    amount_usd   = 5000
-    project_ids  = [
-      "prj-dv-network",
-      "prj-dv-logging",
-    ]
-    alert_thresholds = [0.5, 0.75, 0.9, 1.0]
-    include_credits  = false
+  # Percentage-of-last-month alert: fires when spend reaches 50%, 90%, or 100% of last month's spend
+  "percentage-billing-alert" = {
+    use_last_period_amount = true
+    project_ids            = []   # empty = entire billing account
+    alert_thresholds       = [0.5, 0.9, 1.0]
+    include_credits        = false
+    notification_channels  = []
   }
 }

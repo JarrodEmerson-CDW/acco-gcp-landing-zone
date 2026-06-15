@@ -23,9 +23,16 @@ resource "google_billing_budget" "budgets" {
   }
 
   amount {
-    specified_amount {
-      currency_code = "USD"
-      units         = tostring(floor(each.value.amount_usd))
+    dynamic "specified_amount" {
+      for_each = each.value.use_last_period_amount ? [] : [1]
+      content {
+        currency_code = "USD"
+        units         = tostring(floor(each.value.amount_usd))
+      }
+    }
+    dynamic "last_period_amount" {
+      for_each = each.value.use_last_period_amount ? [1] : []
+      content {}
     }
   }
 
