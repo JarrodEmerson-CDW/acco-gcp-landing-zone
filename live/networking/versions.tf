@@ -13,6 +13,7 @@ terraform {
   }
 
   backend "gcs" {
+    bucket = "bkt-acco-tf-state-sh"
     prefix = "terraform/networking"
   }
 }

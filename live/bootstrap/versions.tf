@@ -14,7 +14,7 @@ terraform {
 
   # Bootstrap uses local state initially; migrate to GCS after first apply
   # backend "gcs" {
-  #   bucket = "<state-bucket-name>"
+  #   bucket = "bkt-acco-tf-state-sh"
   #   prefix = "terraform/bootstrap"
   # }
 }

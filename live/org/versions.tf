@@ -13,8 +13,7 @@ terraform {
   }
 
   backend "gcs" {
-    # bucket and prefix are supplied via -backend-config or terraform.tfbackend file
-    # bucket = "<state-bucket-from-bootstrap>"
+    bucket = "bkt-acco-tf-state-sh"
     prefix = "terraform/org"
   }
 }
