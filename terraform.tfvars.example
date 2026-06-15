@@ -1,0 +1,710 @@
+# =============================================================================
+# ACCO Engineered Systems — GCP Landing Zone
+# terraform.tfvars.example
+#
+# This file documents every configurable value. Copy it to terraform.tfvars
+# (or use -var-file) and fill in real values. No structural code changes
+# are required to add environments, BUs, CIDRs, groups, or policies.
+#
+# APPLY ORDER:
+#   1. live/bootstrap
+#   2. live/org
+#   3. live/projects
+#   4. live/networking
+#   5. live/iam
+# =============================================================================
+
+# =============================================================================
+# GLOBAL IDENTIFIERS
+# =============================================================================
+
+org_id             = "123456789012"          # numeric Google Cloud Org ID
+billing_account_id = "ABCDEF-123456-FEDCBA"  # CDW-managed billing account
+billing_project    = "prj-sh-cicd"           # used for API quota
+
+# =============================================================================
+# live/bootstrap
+# =============================================================================
+
+cicd_project_id       = "prj-sh-cicd"
+state_bucket_name     = "bkt-acco-tf-state-sh"
+state_bucket_location = "US"
+
+github_org = "AccoEngineeredSystems"
+
+github_repos = {
+  # Each key becomes part of the SA name: sa-cicd-<key>
+  "landing-zone" = {
+    repo_name   = "AccoEngineeredSystems/gcp-landing-zone"
+    description = "Terraform landing zone pipeline"
+    sa_roles = [
+      "roles/resourcemanager.folderAdmin",
+      "roles/resourcemanager.projectCreator",
+      "roles/iam.organizationRoleAdmin",
+      "roles/orgpolicy.policyAdmin",
+      "roles/billing.user",
+    ]
+  }
+  "app-dev" = {
+    repo_name   = "AccoEngineeredSystems/gcp-app-dev"
+    description = "Application workload pipeline"
+    sa_roles = [
+      "roles/editor",
+    ]
+  }
+}
+
+seed_service_accounts = {
+  "sa-tf-org" = {
+    display_name  = "Terraform Org-Level SA"
+    description   = "Used for org-level Terraform applies (org, folders, policies)"
+    project_roles = ["roles/iam.serviceAccountTokenCreator"]
+  }
+}
+
+labels = {
+  org        = "acco-engineered-systems"
+  managed_by = "terraform"
+  cost_center = "infra"
+}
+
+# =============================================================================
+# live/org — folder hierarchy
+# =============================================================================
+
+top_level_folders = {
+  "dev" = {
+    code        = "dv"
+    has_bu_subs = true
+  }
+  "non-prod" = {
+    code        = "np"
+    has_bu_subs = true
+  }
+  "prod" = {
+    code        = "pd"
+    has_bu_subs = true
+  }
+  "shared-services" = {
+    code        = "sh"
+    has_bu_subs = false
+  }
+  "bootstrap" = {
+    code        = "sh"
+    has_bu_subs = false
+  }
+  "sandbox" = {
+    code        = "sb"
+    has_bu_subs = false
+  }
+}
+
+# Sub-folders under non-BU top-level folders.
+# Key format: "<parent display name>/<child display name>"
+shared_subfolders = {
+  "shared-services/networking"      = "networking"
+  "shared-services/infrastructure"  = "infrastructure"
+  "bootstrap/cicd"                  = "cicd"
+}
+
+# Business units repeated under dev / non-prod / prod
+business_units = [
+  "controls",
+  "facilities",
+  "construction",
+  "engineering",
+  "shop",
+  "field",
+  "operations",
+  "administration",
+  "branch-plants",   # placeholder — no child resources created by default
+]
+
+# =============================================================================
+# live/org — org policies
+# =============================================================================
+
+boolean_org_policies = {
+  "constraints/compute.skipDefaultNetworkCreation" = { enforced = true }
+  "constraints/storage.uniformBucketLevelAccess"   = { enforced = true }
+}
+
+list_org_policies = {
+  # Deny all external IPs on VMs
+  "constraints/compute.vmExternalIpAccess" = {
+    deny_all     = true
+    allow_all    = false
+    allow_values = []
+    deny_values  = []
+  }
+  # Domain-restricted sharing: only accoes.com identities
+  "constraints/iam.allowedPolicyMemberDomains" = {
+    allow_all    = false
+    deny_all     = false
+    allow_values = ["accoes.com"]
+    deny_values  = []
+  }
+}
+
+# Per-folder overrides — fill in folder IDs after live/org apply
+# Example: allow a sandbox project to have external IPs
+folder_policy_overrides = {
+  # "sandbox/vmExternalIpAccess" = {
+  #   folder_id   = "123456789"  # numeric ID of the sandbox folder
+  #   constraint  = "constraints/compute.vmExternalIpAccess"
+  #   policy_type = "list"
+  #   allow_all   = true
+  # }
+}
+
+# =============================================================================
+# live/projects
+# =============================================================================
+
+project_name_template = "prj-{env}-{app}"
+
+default_project_apis = [
+  "cloudresourcemanager.googleapis.com",
+  "iam.googleapis.com",
+  "serviceusage.googleapis.com",
+  "logging.googleapis.com",
+  "monitoring.googleapis.com",
+  "compute.googleapis.com",
+]
+
+# Replace <folder_id_*> values with actual folder IDs from live/org outputs.
+projects = {
+  # ── Networking projects ───────────────────────────────────────────────────
+  "dv-network" = {
+    env_code  = "dv"
+    app       = "network"
+    folder_id = "folders/<networking_subfolder_id>"
+    additional_apis = [
+      "dns.googleapis.com",
+      "networkmanagement.googleapis.com",
+    ]
+  }
+  "np-network" = {
+    env_code  = "np"
+    app       = "network"
+    folder_id = "folders/<networking_subfolder_id>"
+    additional_apis = [
+      "dns.googleapis.com",
+      "networkmanagement.googleapis.com",
+    ]
+  }
+  "pd-network" = {
+    env_code  = "pd"
+    app       = "network"
+    folder_id = "folders/<networking_subfolder_id>"
+    additional_apis = [
+      "dns.googleapis.com",
+      "networkmanagement.googleapis.com",
+    ]
+    skip_delete = true
+  }
+  "sh-interconnect" = {
+    env_code  = "sh"
+    app       = "interconnect"
+    folder_id = "folders/<networking_subfolder_id>"
+    additional_apis = [
+      "dns.googleapis.com",
+      "networkmanagement.googleapis.com",
+      "interconnect.googleapis.com",
+    ]
+  }
+
+  # ── Logging / monitoring projects ─────────────────────────────────────────
+  "dv-logging" = {
+    env_code  = "dv"
+    app       = "logging"
+    folder_id = "folders/<infrastructure_subfolder_id>"
+    additional_apis = [
+      "pubsub.googleapis.com",
+      "storage.googleapis.com",
+    ]
+  }
+  "np-logging" = {
+    env_code  = "np"
+    app       = "logging"
+    folder_id = "folders/<infrastructure_subfolder_id>"
+    additional_apis = [
+      "pubsub.googleapis.com",
+      "storage.googleapis.com",
+    ]
+  }
+  "pd-logging" = {
+    env_code  = "pd"
+    app       = "logging"
+    folder_id = "folders/<infrastructure_subfolder_id>"
+    additional_apis = [
+      "pubsub.googleapis.com",
+      "storage.googleapis.com",
+    ]
+    skip_delete = true
+  }
+  "sh-operations" = {
+    env_code  = "sh"
+    app       = "operations"
+    folder_id = "folders/<infrastructure_subfolder_id>"
+    additional_apis = [
+      "monitoring.googleapis.com",
+      "cloudtrace.googleapis.com",
+    ]
+  }
+
+  # ── Bootstrap / CICD ──────────────────────────────────────────────────────
+  "sh-cicd" = {
+    env_code  = "sh"
+    app       = "cicd"
+    folder_id = "folders/<bootstrap_cicd_subfolder_id>"
+    additional_apis = [
+      "iam.googleapis.com",
+      "iamcredentials.googleapis.com",
+      "sts.googleapis.com",
+      "storage.googleapis.com",
+    ]
+    skip_delete = true
+  }
+
+  # ── To add a new project: add an entry here. No code changes needed. ──────
+  # "dv-controls-app1" = {
+  #   env_code  = "dv"
+  #   app       = "controls-app1"
+  #   folder_id = "folders/<dv_controls_folder_id>"
+  # }
+}
+
+# =============================================================================
+# live/networking
+# =============================================================================
+
+# ── Hub (interconnect) VPC ────────────────────────────────────────────────────
+hub_project_id   = "prj-sh-interconnect"
+hub_network_name = "vpc-interconnect"
+
+hub_subnets = {
+  # Inside subnet for Meraki/VPN appliance (optional — comment out if not used)
+  "sn-interconnect-inside-usw2" = {
+    ip_cidr_range = "10.146.1.0/24"
+    region        = "us-west2"
+    description   = "Inside subnet for Meraki/VPN appliance"
+  }
+  # Outside subnet for Meraki/VPN appliance
+  "sn-interconnect-outside-usw2" = {
+    ip_cidr_range = "10.146.2.0/24"
+    region        = "us-west2"
+    description   = "Outside subnet for Meraki/VPN appliance"
+  }
+  # Management subnet for Meraki/VPN appliance
+  "sn-interconnect-mgmt-usw2" = {
+    ip_cidr_range = "10.146.3.0/24"
+    region        = "us-west2"
+    description   = "Management subnet for Meraki/VPN appliance"
+  }
+  # General interconnect subnet
+  "sn-interconnect-primary-usw2" = {
+    ip_cidr_range = "10.146.4.0/24"
+    region        = "us-west2"
+    description   = "Primary interconnect subnet"
+  }
+  # Secondary region
+  "sn-interconnect-primary-usc1" = {
+    ip_cidr_range = "10.146.5.0/24"
+    region        = "us-central1"
+    description   = "Secondary interconnect subnet"
+  }
+}
+
+hub_nat_config = {
+  "us-west2" = {
+    nat_ip_allocate_option = "AUTO_ONLY"
+    log_config_enable      = false
+  }
+  "us-central1" = {
+    nat_ip_allocate_option = "AUTO_ONLY"
+    log_config_enable      = false
+  }
+}
+
+hub_firewall_rules = {
+  "fw-interconnect-deny-egress-default" = {
+    direction = "EGRESS"
+    priority  = 65534
+    ranges    = ["0.0.0.0/0"]
+    deny = [{ protocol = "all" }]
+    description = "Default deny all egress"
+  }
+  "fw-interconnect-allow-iap-ingress" = {
+    direction = "INGRESS"
+    priority  = 1000
+    ranges    = ["35.235.240.0/20"]
+    allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
+    description = "Allow IAP for SSH/RDP"
+  }
+}
+
+# ── Spoke VPCs (dev, non-prod, prod) ─────────────────────────────────────────
+# CIDR allocations per environment (10.14x.0.0/16):
+#   sandbox      = 10.142.0.0/16
+#   dev          = 10.143.0.0/16
+#   non-prod     = 10.144.0.0/16
+#   prod         = 10.145.0.0/16
+#   interconnect = 10.146.0.0/16
+
+spoke_vpcs = {
+  "dev" = {
+    host_project_id = "prj-dv-network"
+    network_name    = "vpc-dev"
+    cidr_block      = "10.143.0.0/16"
+    service_project_ids = [
+      # Add dev service project IDs here after projects are created
+      # "prj-dv-controls-app1",
+    ]
+    subnets = {
+      "sn-dev-primary-usw2" = {
+        ip_cidr_range = "10.143.1.0/24"
+        region        = "us-west2"
+        description   = "Dev primary subnet us-west2"
+      }
+      "sn-dev-secondary-usc1" = {
+        ip_cidr_range = "10.143.2.0/24"
+        region        = "us-central1"
+        description   = "Dev secondary subnet us-central1"
+      }
+    }
+    nat_config = {
+      "us-west2"    = { nat_ip_allocate_option = "AUTO_ONLY" }
+      "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
+    }
+    firewall_rules = {
+      "fw-dev-deny-egress-default" = {
+        direction = "EGRESS"
+        priority  = 65534
+        ranges    = ["0.0.0.0/0"]
+        deny      = [{ protocol = "all" }]
+        description = "Default deny all egress"
+      }
+      "fw-dev-allow-iap-ingress" = {
+        direction = "INGRESS"
+        priority  = 1000
+        ranges    = ["35.235.240.0/20"]
+        allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
+        description = "Allow IAP for SSH/RDP"
+      }
+      "fw-dev-allow-internal-ingress" = {
+        direction = "INGRESS"
+        priority  = 1000
+        ranges    = ["10.143.0.0/16"]
+        allow     = [{ protocol = "all" }]
+        description = "Allow internal dev traffic"
+      }
+    }
+  }
+
+  "non-prod" = {
+    host_project_id = "prj-np-network"
+    network_name    = "vpc-non-prod"
+    cidr_block      = "10.144.0.0/16"
+    service_project_ids = []
+    subnets = {
+      "sn-np-primary-usw2" = {
+        ip_cidr_range = "10.144.1.0/24"
+        region        = "us-west2"
+        description   = "Non-prod primary subnet us-west2"
+      }
+      "sn-np-secondary-usc1" = {
+        ip_cidr_range = "10.144.2.0/24"
+        region        = "us-central1"
+        description   = "Non-prod secondary subnet us-central1"
+      }
+    }
+    nat_config = {
+      "us-west2"    = { nat_ip_allocate_option = "AUTO_ONLY" }
+      "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
+    }
+    firewall_rules = {
+      "fw-np-deny-egress-default" = {
+        direction = "EGRESS"
+        priority  = 65534
+        ranges    = ["0.0.0.0/0"]
+        deny      = [{ protocol = "all" }]
+      }
+      "fw-np-allow-iap-ingress" = {
+        direction = "INGRESS"
+        priority  = 1000
+        ranges    = ["35.235.240.0/20"]
+        allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
+      }
+      "fw-np-allow-internal-ingress" = {
+        direction = "INGRESS"
+        priority  = 1000
+        ranges    = ["10.144.0.0/16"]
+        allow     = [{ protocol = "all" }]
+      }
+    }
+  }
+
+  "prod" = {
+    host_project_id = "prj-pd-network"
+    network_name    = "vpc-prod"
+    cidr_block      = "10.145.0.0/16"
+    service_project_ids = []
+    subnets = {
+      "sn-pd-primary-usw2" = {
+        ip_cidr_range = "10.145.1.0/24"
+        region        = "us-west2"
+        description   = "Prod primary subnet us-west2"
+      }
+      "sn-pd-secondary-usc1" = {
+        ip_cidr_range = "10.145.2.0/24"
+        region        = "us-central1"
+        description   = "Prod secondary subnet us-central1"
+      }
+    }
+    nat_config = {
+      "us-west2"    = { nat_ip_allocate_option = "AUTO_ONLY" }
+      "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
+    }
+    firewall_rules = {
+      "fw-pd-deny-egress-default" = {
+        direction = "EGRESS"
+        priority  = 65534
+        ranges    = ["0.0.0.0/0"]
+        deny      = [{ protocol = "all" }]
+      }
+      "fw-pd-allow-iap-ingress" = {
+        direction = "INGRESS"
+        priority  = 1000
+        ranges    = ["35.235.240.0/20"]
+        allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
+      }
+      "fw-pd-allow-internal-ingress" = {
+        direction = "INGRESS"
+        priority  = 1000
+        ranges    = ["10.145.0.0/16"]
+        allow     = [{ protocol = "all" }]
+      }
+    }
+  }
+}
+
+# ── DNS ───────────────────────────────────────────────────────────────────────
+dns_project_id = "prj-sh-interconnect"
+
+private_dns_zones = {
+  "accoes-internal" = {
+    dns_name    = "accoes.internal."
+    description = "ACCO internal private DNS zone"
+    networks    = [
+      # Add VPC self-links after networking apply:
+      # "https://www.googleapis.com/compute/v1/projects/prj-sh-interconnect/global/networks/vpc-interconnect",
+      # "https://www.googleapis.com/compute/v1/projects/prj-dv-network/global/networks/vpc-dev",
+    ]
+  }
+}
+
+peering_dns_zones = {
+  # Uncomment to configure peering zones from spokes to hub
+  # "dev-to-hub-internal" = {
+  #   dns_name     = "accoes.internal."
+  #   networks     = ["<dev-vpc-self-link>"]
+  #   peer_network = "<hub-vpc-self-link>"
+  # }
+}
+
+forwarding_dns_zones = {
+  # On-prem / Azure forwarding zones
+  # "onprem-corp" = {
+  #   dns_name      = "corp.accoes.com."
+  #   networks      = ["<hub-vpc-self-link>"]
+  #   target_dns_ip = ["192.168.1.53", "192.168.1.54"]
+  # }
+}
+
+# =============================================================================
+# live/iam — IAM bindings, log sinks, budgets
+# =============================================================================
+
+# ── IAM Bindings ──────────────────────────────────────────────────────────────
+# Naming convention for groups: gcp-<env>-<business-unit>-[<app>]-<admins|users>
+# Platform groups: gcp-organization-admins, gcp-billing-admins,
+#                  gcp-sh-network-admins, gcp-sh-infrastructure-admins
+# Per-env:         gcp-<env>-admins
+#
+# USER bindings are empty by default — add them here without code changes.
+
+iam_bindings = {
+  # ── Org-level admin groups ──────────────────────────────────────────────────
+  "org/org-admins/org-admin-role" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-organization-admins@accoes.com"
+    role          = "roles/resourcemanager.organizationAdmin"
+  }
+  "org/billing-admins/billing-admin-role" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-billing-admins@accoes.com"
+    role          = "roles/billing.admin"
+  }
+  "org/network-admins/compute-network-admin" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-sh-network-admins@accoes.com"
+    role          = "roles/compute.networkAdmin"
+  }
+  "org/infra-admins/org-viewer" = {
+    resource_type = "organization"
+    resource_id   = "123456789012"
+    member        = "group:gcp-sh-infrastructure-admins@accoes.com"
+    role          = "roles/viewer"
+  }
+
+  # ── Per-env admin groups ───────────────────────────────────────────────────
+  # Replace <folder_id_dev> etc. with actual folder IDs from live/org outputs.
+  "folder/dev/gcp-dv-admins/folder-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/<folder_id_dev>"
+    member        = "group:gcp-dv-admins@accoes.com"
+    role          = "roles/resourcemanager.folderAdmin"
+  }
+  "folder/np/gcp-np-admins/folder-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/<folder_id_non_prod>"
+    member        = "group:gcp-np-admins@accoes.com"
+    role          = "roles/resourcemanager.folderAdmin"
+  }
+  "folder/pd/gcp-pd-admins/folder-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/<folder_id_prod>"
+    member        = "group:gcp-pd-admins@accoes.com"
+    role          = "roles/resourcemanager.folderAdmin"
+  }
+
+  # ── Business-unit admin groups (example: controls in dev) ──────────────────
+  "folder/dv-controls/gcp-dv-controls-admins/editor" = {
+    resource_type = "folder"
+    resource_id   = "folders/<dv_controls_folder_id>"
+    member        = "group:gcp-dv-controls-admins@accoes.com"
+    role          = "roles/editor"
+  }
+
+  # ── USER group bindings (empty by default — add per app) ───────────────────
+  # "project/prj-dv-controls-app1/gcp-dv-controls-users/viewer" = {
+  #   resource_type = "project"
+  #   resource_id   = "prj-dv-controls-app1"
+  #   member        = "group:gcp-dv-controls-users@accoes.com"
+  #   role          = "roles/viewer"
+  # }
+
+  # ── Example time-bound condition (break-glass access) ─────────────────────
+  # "org/breakglass/temp-admin" = {
+  #   resource_type = "organization"
+  #   resource_id   = "123456789012"
+  #   member        = "group:gcp-breakglass@accoes.com"
+  #   role          = "roles/resourcemanager.organizationAdmin"
+  #   condition = {
+  #     title      = "expires_2025_12_31"
+  #     expression = "request.time < timestamp('2025-12-31T00:00:00Z')"
+  #   }
+  # }
+}
+
+# ── Service Accounts ──────────────────────────────────────────────────────────
+service_accounts = {
+  # Example: monitoring SA in the operations project
+  # "sa-monitoring" = {
+  #   project_id    = "prj-sh-operations"
+  #   display_name  = "Monitoring SA"
+  #   description   = "Writes metrics and traces"
+  #   project_roles = ["roles/monitoring.metricWriter", "roles/cloudtrace.agent"]
+  #   iam_bindings  = {}
+  # }
+}
+
+# ── Log Sinks ─────────────────────────────────────────────────────────────────
+log_sinks = {
+  "dev-org-sink" = {
+    sink_project_id  = "prj-dv-logging"
+    sink_name        = "sink-dv-org"
+    parent_type      = "folder"
+    parent_id        = "folders/<folder_id_dev>"
+    filter           = ""
+    include_children = true
+    bucket_name      = "bkt-dv-logs-acco"
+    bucket_location  = "US"
+    retention_days   = 30
+    audit_retention_days = 400
+    nearline_age_days    = 30
+    archive_age_days     = 90
+    pubsub_topic_name    = "topic-dv-logs"
+    # Uncomment for Splunk integration:
+    # splunk_subscription_name = "sub-dv-logs-splunk"
+    # splunk_push_endpoint     = "https://splunk.accoes.com:8088/services/collector"
+    labels = { environment = "dv" }
+  }
+
+  "np-org-sink" = {
+    sink_project_id      = "prj-np-logging"
+    sink_name            = "sink-np-org"
+    parent_type          = "folder"
+    parent_id            = "folders/<folder_id_non_prod>"
+    filter               = ""
+    include_children     = true
+    bucket_name          = "bkt-np-logs-acco"
+    bucket_location      = "US"
+    retention_days       = 30
+    audit_retention_days = 400
+    nearline_age_days    = 30
+    archive_age_days     = 90
+    pubsub_topic_name    = "topic-np-logs"
+    labels = { environment = "np" }
+  }
+
+  "pd-org-sink" = {
+    sink_project_id      = "prj-pd-logging"
+    sink_name            = "sink-pd-org"
+    parent_type          = "folder"
+    parent_id            = "folders/<folder_id_prod>"
+    filter               = ""
+    include_children     = true
+    bucket_name          = "bkt-pd-logs-acco"
+    bucket_location      = "US"
+    retention_days       = 90
+    audit_retention_days = 400
+    nearline_age_days    = 30
+    archive_age_days     = 90
+    pubsub_topic_name    = "topic-pd-logs"
+    labels = { environment = "pd" }
+  }
+}
+
+# ── Budgets ────────────────────────────────────────────────────────────────────
+budgets = {
+  "acco-total-monthly" = {
+    amount_usd        = 50000
+    project_ids       = []   # empty = entire billing account
+    alert_thresholds  = [0.5, 0.75, 0.9, 1.0]
+    include_credits   = false
+    notification_channels = []
+  }
+  "acco-prod-monthly" = {
+    amount_usd   = 30000
+    project_ids  = [
+      "prj-pd-network",
+      "prj-pd-logging",
+    ]
+    alert_thresholds = [0.5, 0.75, 0.9, 1.0]
+    include_credits  = false
+  }
+  "acco-dev-monthly" = {
+    amount_usd   = 5000
+    project_ids  = [
+      "prj-dv-network",
+      "prj-dv-logging",
+    ]
+    alert_thresholds = [0.5, 0.75, 0.9, 1.0]
+    include_credits  = false
+  }
+}
