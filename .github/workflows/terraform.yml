@@ -1,6 +1,8 @@
-name: 'Terraform CI/CD (Manual Execution)'
+name: 'Terraform CI/CD (Push & Manual Execution)'
 
 on:
+  push:
+    branches: [ "main" ]
   workflow_dispatch:
     inputs:
       layer:
@@ -35,8 +37,9 @@ jobs:
   org_plan:
     name: 'Plan: org'
     runs-on: ubuntu-latest
-    # Changed: Now runs if the layer is 'org', regardless of the action selected
-    if: ${{ github.event.inputs.layer == 'org' }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'org') }}
+    outputs:
+      tf_exitcode: ${{ steps.tfplan.outputs.tf_exitcode }}
     defaults:
       run:
         working-directory: live/org
@@ -49,13 +52,22 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color -var-file=../../terraform.tfvars
+    - name: Terraform Plan
+      id: tfplan
+      run: |
+        set +e # Temporarily disable exit on error to capture the code
+        terraform plan -no-color -var-file=../../terraform.tfvars -detailed-exitcode
+        EXIT_CODE=$?
+        set -e # Re-enable exit on error
+        echo "tf_exitcode=$EXIT_CODE" >> $GITHUB_OUTPUT
+        if [ $EXIT_CODE -eq 1 ]; then exit 1; fi # Fail the pipeline if there's a real error
 
   org_apply:
     name: 'Apply: org'
     runs-on: ubuntu-latest
-    needs: org_plan # Added: Forces Apply to wait for Plan to finish
-    if: ${{ github.event.inputs.layer == 'org' && github.event.inputs.action == 'apply' }}
+    needs: org_plan
+    # Only run if the push/manual condition is met AND the exit code was exactly 2 (changes present)
+    if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'org' && github.event.inputs.action == 'apply')) && needs.org_plan.outputs.tf_exitcode == '2' }}
     environment: org-env
     defaults:
       run:
@@ -76,7 +88,11 @@ jobs:
   projects_plan:
     name: 'Plan: projects'
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.layer == 'projects' }}
+    needs: org_apply
+    # !failure() ensures this runs even if org_apply was safely skipped because of "no changes"
+    if: ${{ !failure() && !cancelled() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'projects')) }}
+    outputs:
+      tf_exitcode: ${{ steps.tfplan.outputs.tf_exitcode }}
     defaults:
       run:
         working-directory: live/projects
@@ -89,13 +105,21 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color -var-file=../../terraform.tfvars
+    - name: Terraform Plan
+      id: tfplan
+      run: |
+        set +e
+        terraform plan -no-color -var-file=../../terraform.tfvars -detailed-exitcode
+        EXIT_CODE=$?
+        set -e
+        echo "tf_exitcode=$EXIT_CODE" >> $GITHUB_OUTPUT
+        if [ $EXIT_CODE -eq 1 ]; then exit 1; fi
 
   projects_apply:
     name: 'Apply: projects'
     runs-on: ubuntu-latest
     needs: projects_plan
-    if: ${{ github.event.inputs.layer == 'projects' && github.event.inputs.action == 'apply' }}
+    if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'projects' && github.event.inputs.action == 'apply')) && needs.projects_plan.outputs.tf_exitcode == '2' }}
     environment: projects-env
     defaults:
       run:
@@ -116,7 +140,10 @@ jobs:
   networking_plan:
     name: 'Plan: networking'
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.layer == 'networking' }}
+    needs: projects_apply
+    if: ${{ !failure() && !cancelled() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'networking')) }}
+    outputs:
+      tf_exitcode: ${{ steps.tfplan.outputs.tf_exitcode }}
     defaults:
       run:
         working-directory: live/networking
@@ -129,13 +156,21 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color -var-file=../../terraform.tfvars
+    - name: Terraform Plan
+      id: tfplan
+      run: |
+        set +e
+        terraform plan -no-color -var-file=../../terraform.tfvars -detailed-exitcode
+        EXIT_CODE=$?
+        set -e
+        echo "tf_exitcode=$EXIT_CODE" >> $GITHUB_OUTPUT
+        if [ $EXIT_CODE -eq 1 ]; then exit 1; fi
 
   networking_apply:
     name: 'Apply: networking'
     runs-on: ubuntu-latest
     needs: networking_plan
-    if: ${{ github.event.inputs.layer == 'networking' && github.event.inputs.action == 'apply' }}
+    if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'networking' && github.event.inputs.action == 'apply')) && needs.networking_plan.outputs.tf_exitcode == '2' }}
     environment: networking-env
     defaults:
       run:
@@ -156,7 +191,10 @@ jobs:
   iam_plan:
     name: 'Plan: iam'
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.layer == 'iam' }}
+    needs: networking_apply
+    if: ${{ !failure() && !cancelled() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'iam')) }}
+    outputs:
+      tf_exitcode: ${{ steps.tfplan.outputs.tf_exitcode }}
     defaults:
       run:
         working-directory: live/iam
@@ -169,13 +207,21 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color -var-file=../../terraform.tfvars
+    - name: Terraform Plan
+      id: tfplan
+      run: |
+        set +e
+        terraform plan -no-color -var-file=../../terraform.tfvars -detailed-exitcode
+        EXIT_CODE=$?
+        set -e
+        echo "tf_exitcode=$EXIT_CODE" >> $GITHUB_OUTPUT
+        if [ $EXIT_CODE -eq 1 ]; then exit 1; fi
 
   iam_apply:
     name: 'Apply: iam'
     runs-on: ubuntu-latest
     needs: iam_plan
-    if: ${{ github.event.inputs.layer == 'iam' && github.event.inputs.action == 'apply' }}
+    if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.layer == 'iam' && github.event.inputs.action == 'apply')) && needs.iam_plan.outputs.tf_exitcode == '2' }}
     environment: iam-env
     defaults:
       run:
