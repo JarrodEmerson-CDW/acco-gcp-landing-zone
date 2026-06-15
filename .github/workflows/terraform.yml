@@ -11,7 +11,7 @@ permissions:
 
 env:
   WIF_PROVIDER: 'projects/1040065388093/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-  SERVICE_ACCOUNT: 'terraform-sa@prj-sh-cicd-499518.iam.gserviceaccount.com'
+  SERVICE_ACCOUNT: 'sa-terraform-deploy@prj-sh-cicd-499518.iam.gserviceaccount.com'
 
 jobs:
   # 1. BOOTSTRAP
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: live/bootstrap # Updated path
+        working-directory: live/bootstrap
     
     steps:
     - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
     needs: bootstrap
     defaults:
       run:
-        working-directory: live/org # Updated path
+        working-directory: live/org
         
     steps:
     - uses: actions/checkout@v4
@@ -63,10 +63,10 @@ jobs:
   projects:
     name: 'TF: projects'
     runs-on: ubuntu-latest
-    needs: org # Updated sequence dependency
+    needs: org
     defaults:
       run:
-        working-directory: live/projects # Updated path
+        working-directory: live/projects
         
     steps:
     - uses: actions/checkout@v4
@@ -86,10 +86,10 @@ jobs:
   networking:
     name: 'TF: networking'
     runs-on: ubuntu-latest
-    needs: projects # Updated sequence dependency
+    needs: projects
     defaults:
       run:
-        working-directory: live/networking # Updated path
+        working-directory: live/networking
         
     steps:
     - uses: actions/checkout@v4
@@ -109,10 +109,10 @@ jobs:
   iam:
     name: 'TF: iam'
     runs-on: ubuntu-latest
-    needs: networking # Updated sequence dependency
+    needs: networking
     defaults:
       run:
-        working-directory: live/iam # Updated path
+        working-directory: live/iam
         
     steps:
     - uses: actions/checkout@v4
