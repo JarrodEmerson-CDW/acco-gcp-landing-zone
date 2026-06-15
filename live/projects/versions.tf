@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "gcs" {
-    bucket = "bkt-acco-tf-state-sh"
+    bucket = "acco-terraform-state-bucket02"
     prefix = "terraform/projects"
   }
 }
