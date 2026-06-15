@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: bootstrap
+        working-directory: live/bootstrap # Updated path
     
     steps:
     - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
     needs: bootstrap
     defaults:
       run:
-        working-directory: org
+        working-directory: live/org # Updated path
         
     steps:
     - uses: actions/checkout@v4
@@ -59,60 +59,60 @@ jobs:
     - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
 
-  # 3. IAM (Waits for org)
-  iam:
-    name: 'TF: iam'
-    runs-on: ubuntu-latest
-    needs: org
-    defaults:
-      run:
-        working-directory: iam
-        
-    steps:
-    - uses: actions/checkout@v4
-    - uses: google-github-actions/auth@v3
-      with:
-        workload_identity_provider: ${{ env.WIF_PROVIDER }}
-        service_account: ${{ env.SERVICE_ACCOUNT }}
-    - uses: hashicorp/setup-terraform@v4
-    - run: terraform init
-    - run: terraform fmt -check
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
-
-  # 4. NETWORKING (Waits for iam)
-  networking:
-    name: 'TF: networking'
-    runs-on: ubuntu-latest
-    needs: iam
-    defaults:
-      run:
-        working-directory: networking
-        
-    steps:
-    - uses: actions/checkout@v4
-    - uses: google-github-actions/auth@v3
-      with:
-        workload_identity_provider: ${{ env.WIF_PROVIDER }}
-        service_account: ${{ env.SERVICE_ACCOUNT }}
-    - uses: hashicorp/setup-terraform@v4
-    - run: terraform init
-    - run: terraform fmt -check
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
-
-  # 5. PROJECTS (Waits for networking)
+  # 3. PROJECTS (Waits for org)
   projects:
     name: 'TF: projects'
     runs-on: ubuntu-latest
-    needs: networking
+    needs: org # Updated sequence dependency
     defaults:
       run:
-        working-directory: projects
+        working-directory: live/projects # Updated path
+        
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init
+    - run: terraform fmt -check
+    - if: github.event_name == 'pull_request'
+      run: terraform plan -no-color
+    - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+
+  # 4. NETWORKING (Waits for projects)
+  networking:
+    name: 'TF: networking'
+    runs-on: ubuntu-latest
+    needs: projects # Updated sequence dependency
+    defaults:
+      run:
+        working-directory: live/networking # Updated path
+        
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init
+    - run: terraform fmt -check
+    - if: github.event_name == 'pull_request'
+      run: terraform plan -no-color
+    - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+
+  # 5. IAM (Waits for networking)
+  iam:
+    name: 'TF: iam'
+    runs-on: ubuntu-latest
+    needs: networking # Updated sequence dependency
+    defaults:
+      run:
+        working-directory: live/iam # Updated path
         
     steps:
     - uses: actions/checkout@v4
