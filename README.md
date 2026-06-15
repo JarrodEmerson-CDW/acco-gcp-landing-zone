@@ -160,7 +160,7 @@ terraform init -migrate-state
 
 ```bash
 cd live/org
-terraform init -backend-config="bucket=<state-bucket-name>"
+terraform init
 terraform apply
 # Note outputs: top_level_folder_ids, bu_subfolder_ids, static_subfolder_ids
 ```
@@ -171,7 +171,7 @@ Update `terraform.tfvars` with the real folder IDs from the outputs above.
 
 ```bash
 cd live/projects
-terraform init -backend-config="bucket=<state-bucket-name>"
+terraform init
 terraform apply
 ```
 
@@ -179,7 +179,7 @@ terraform apply
 
 ```bash
 cd live/networking
-terraform init -backend-config="bucket=<state-bucket-name>"
+terraform init
 terraform apply
 ```
 
@@ -187,7 +187,7 @@ terraform apply
 
 ```bash
 cd live/iam
-terraform init -backend-config="bucket=<state-bucket-name>"
+terraform init
 terraform apply
 ```
 
@@ -195,26 +195,18 @@ terraform apply
 
 ## Backend Configuration
 
-Each `live/` root has a partial GCS backend:
+Each `live/` root has a GCS backend with a hardcoded bucket name:
 
 ```hcl
 backend "gcs" {
+  bucket = "bkt-acco-tf-state-sh"
   prefix = "terraform/<layer>"
 }
 ```
 
-Supply the bucket at `init` time:
+Since the bucket name is now hardcoded, you can simply run:
 ```bash
-terraform init -backend-config="bucket=bkt-acco-tf-state-sh"
-```
-
-Or create a `backend.tfbackend` file per layer:
-```
-bucket = "bkt-acco-tf-state-sh"
-```
-
-```bash
-terraform init -backend-config=backend.tfbackend
+terraform init
 ```
 
 ---
