@@ -29,12 +29,12 @@ billing_project    = "prj-sh-cicd"           # used for API quota
 cicd_project_id       = "prj-sh-cicd"
 
 
-github_org = "AccoEngineeredSystems"
+github_org = "JarrodEmerson-CDW"
 
 github_repos = {
   # Each key becomes part of the SA name: sa-cicd-<key>
   "landing-zone" = {
-    repo_name   = "AccoEngineeredSystems/gcp-landing-zone"
+    repo_name   = "JarrodEmerson-CDW/acco-gcp-landing-zone"
     description = "Terraform landing zone pipeline"
     sa_roles = [
       "roles/resourcemanager.folderAdmin",
@@ -44,25 +44,10 @@ github_repos = {
       "roles/billing.user",
     ]
   }
-  "app-dev" = {
-    repo_name   = "AccoEngineeredSystems/gcp-app-dev"
-    description = "Application workload pipeline"
-    sa_roles = [
-      "roles/editor",
-    ]
-  }
-}
-
-seed_service_accounts = {
-  "ACCO-sa-terraform" = {
-    display_name  = "Terraform Org-Level SA"
-    description   = "Used for org-level Terraform applies (org, folders, policies)"
-    project_roles = ["roles/iam.serviceAccountTokenCreator"]
-  }
 }
 
 labels = {
-  org        = "acco-engineered-systems"
+  org        = "JarrodEmerson-CDW"
   managed_by = "terraform"
   cost_center = "infra"
 }
