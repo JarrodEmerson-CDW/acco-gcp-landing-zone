@@ -93,12 +93,12 @@ list_org_policies = {
     deny_values  = []
   }
   # Domain-restricted sharing: only accoes.com identities
-  "constraints/iam.allowedPolicyMemberDomains" = {
-    allow_all    = false
-    deny_all     = false
-    allow_values = ["accoes.com"]
-    deny_values  = []
-  }
+#  "constraints/iam.allowedPolicyMemberDomains" = {
+#    allow_all    = false
+#    deny_all     = false
+#    allow_values = ["accoes.com"]
+#    deny_values  = []
+#  }
 }
 
 # Per-folder overrides — fill in folder IDs after live/org apply
