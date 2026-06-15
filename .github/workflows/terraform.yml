@@ -48,7 +48,7 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color
+    - run: terraform plan -no-color -var-file=../../terraform.tfvars
 
   org_apply:
     name: 'Apply: org'
@@ -66,7 +66,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform apply -auto-approve -input=false
+    - run: terraform apply -auto-approve -input=false -var-file=../../terraform.tfvars
 
   # ==========================================
   # 2. PROJECTS
@@ -87,7 +87,7 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color
+    - run: terraform plan -no-color -var-file=../../terraform.tfvars
 
   projects_apply:
     name: 'Apply: projects'
@@ -105,7 +105,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform apply -auto-approve -input=false
+    - run: terraform apply -auto-approve -input=false -var-file=../../terraform.tfvars
 
   # ==========================================
   # 3. NETWORKING
@@ -126,7 +126,7 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color
+    - run: terraform plan -no-color -var-file=../../terraform.tfvars
 
   networking_apply:
     name: 'Apply: networking'
@@ -144,7 +144,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform apply -auto-approve -input=false
+    - run: terraform apply -auto-approve -input=false -var-file=../../terraform.tfvars
 
   # ==========================================
   # 4. IAM
@@ -165,7 +165,7 @@ jobs:
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
     - run: terraform fmt
-    - run: terraform plan -no-color
+    - run: terraform plan -no-color -var-file=../../terraform.tfvars
 
   iam_apply:
     name: 'Apply: iam'
@@ -183,4 +183,4 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform apply -auto-approve -input=false
+    - run: terraform apply -auto-approve -input=false -var-file=../../terraform.tfvars
