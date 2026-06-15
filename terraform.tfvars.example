@@ -22,35 +22,6 @@ org_id             = "123456789012"          # numeric Google Cloud Org ID
 billing_account_id = "ABCDEF-123456-FEDCBA"  # CDW-managed billing account
 billing_project    = "prj-sh-cicd"           # used for API quota
 
-# =============================================================================
-# live/bootstrap
-# =============================================================================
-
-cicd_project_id       = "prj-sh-cicd"
-
-
-github_org = "JarrodEmerson-CDW"
-
-github_repos = {
-  # Each key becomes part of the SA name: sa-cicd-<key>
-  "landing-zone" = {
-    repo_name   = "JarrodEmerson-CDW/acco-gcp-landing-zone"
-    description = "Terraform landing zone pipeline"
-    sa_roles = [
-      "roles/resourcemanager.folderAdmin",
-      "roles/resourcemanager.projectCreator",
-      "roles/iam.organizationRoleAdmin",
-      "roles/orgpolicy.policyAdmin",
-      "roles/billing.user",
-    ]
-  }
-}
-
-labels = {
-  org        = "JarrodEmerson-CDW"
-  managed_by = "terraform"
-  cost_center = "infra"
-}
 
 # =============================================================================
 # live/org — folder hierarchy
