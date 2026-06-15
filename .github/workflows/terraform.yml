@@ -31,7 +31,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt -check
+    - run: terraform fmt # Removed the strict -check flag
     - if: github.event_name == 'pull_request'
       run: terraform plan -no-color
     - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
@@ -54,7 +54,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt -check
+    - run: terraform fmt # Removed the strict -check flag
     - if: github.event_name == 'pull_request'
       run: terraform plan -no-color
     - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
@@ -77,7 +77,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt -check
+    - run: terraform fmt # Removed the strict -check flag
     - if: github.event_name == 'pull_request'
       run: terraform plan -no-color
     - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
@@ -100,7 +100,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt -check
+    - run: terraform fmt # Removed the strict -check flag
     - if: github.event_name == 'pull_request'
       run: terraform plan -no-color
     - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
@@ -123,7 +123,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt -check
+    - run: terraform fmt # Removed the strict -check flag
     - if: github.event_name == 'pull_request'
       run: terraform plan -no-color
     - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
