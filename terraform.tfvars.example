@@ -18,8 +18,8 @@
 # GLOBAL IDENTIFIERS
 # =============================================================================
 
-org_id             = "123456789012"          # numeric Google Cloud Org ID
-billing_account_id = "ABCDEF-123456-FEDCBA"  # CDW-managed billing account
+org_id             = "823534780982"          # numeric Google Cloud Org ID
+billing_account_id = "013A23-1CE1FA-F39140"  # CDW-managed billing account
 billing_project    = "prj-sh-cicd"           # used for API quota
 
 
