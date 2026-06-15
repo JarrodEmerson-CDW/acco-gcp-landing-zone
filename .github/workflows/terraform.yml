@@ -1,9 +1,8 @@
-name: 'Terraform CI/CD (Sequential)'
+name: 'Terraform CI/CD (Manual Approvals)'
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,14 +14,15 @@ env:
   SERVICE_ACCOUNT: 'sa-terraform-deploy@prj-sh-cicd-499518.iam.gserviceaccount.com'
 
 jobs:
+  # ==========================================
   # 1. BOOTSTRAP
-  bootstrap:
-    name: 'TF: bootstrap'
+  # ==========================================
+  bootstrap_plan:
+    name: 'Plan: bootstrap'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: live/bootstrap
-    
     steps:
     - uses: actions/checkout@v4
     - uses: google-github-actions/auth@v3
@@ -31,21 +31,37 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt # Removed the strict -check flag
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
-      run: terraform apply -auto-approve -input=false
+    - run: terraform fmt
+    - run: terraform plan -no-color
 
-  # 2. ORG (Waits for bootstrap)
-  org:
-    name: 'TF: org'
+  bootstrap_apply:
+    name: 'Apply: bootstrap'
     runs-on: ubuntu-latest
-    needs: bootstrap
+    needs: bootstrap_plan
+    environment: bootstrap-env # <--- This pauses the pipeline for approval
+    defaults:
+      run:
+        working-directory: live/bootstrap
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init -reconfigure
+    - run: terraform apply -auto-approve -input=false
+
+  # ==========================================
+  # 2. ORG
+  # ==========================================
+  org_plan:
+    name: 'Plan: org'
+    runs-on: ubuntu-latest
+    needs: bootstrap_apply
     defaults:
       run:
         working-directory: live/org
-        
     steps:
     - uses: actions/checkout@v4
     - uses: google-github-actions/auth@v3
@@ -54,21 +70,37 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt # Removed the strict -check flag
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
-      run: terraform apply -auto-approve -input=false
+    - run: terraform fmt
+    - run: terraform plan -no-color
 
-  # 3. PROJECTS (Waits for org)
-  projects:
-    name: 'TF: projects'
+  org_apply:
+    name: 'Apply: org'
     runs-on: ubuntu-latest
-    needs: org
+    needs: org_plan
+    environment: org-env
+    defaults:
+      run:
+        working-directory: live/org
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init -reconfigure
+    - run: terraform apply -auto-approve -input=false
+
+  # ==========================================
+  # 3. PROJECTS
+  # ==========================================
+  projects_plan:
+    name: 'Plan: projects'
+    runs-on: ubuntu-latest
+    needs: org_apply
     defaults:
       run:
         working-directory: live/projects
-        
     steps:
     - uses: actions/checkout@v4
     - uses: google-github-actions/auth@v3
@@ -77,21 +109,37 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt # Removed the strict -check flag
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
-      run: terraform apply -auto-approve -input=false
+    - run: terraform fmt
+    - run: terraform plan -no-color
 
-  # 4. NETWORKING (Waits for projects)
-  networking:
-    name: 'TF: networking'
+  projects_apply:
+    name: 'Apply: projects'
     runs-on: ubuntu-latest
-    needs: projects
+    needs: projects_plan
+    environment: projects-env
+    defaults:
+      run:
+        working-directory: live/projects
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init -reconfigure
+    - run: terraform apply -auto-approve -input=false
+
+  # ==========================================
+  # 4. NETWORKING
+  # ==========================================
+  networking_plan:
+    name: 'Plan: networking'
+    runs-on: ubuntu-latest
+    needs: projects_apply
     defaults:
       run:
         working-directory: live/networking
-        
     steps:
     - uses: actions/checkout@v4
     - uses: google-github-actions/auth@v3
@@ -100,21 +148,37 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt # Removed the strict -check flag
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
-      run: terraform apply -auto-approve -input=false
+    - run: terraform fmt
+    - run: terraform plan -no-color
 
-  # 5. IAM (Waits for networking)
-  iam:
-    name: 'TF: iam'
+  networking_apply:
+    name: 'Apply: networking'
     runs-on: ubuntu-latest
-    needs: networking
+    needs: networking_plan
+    environment: networking-env
+    defaults:
+      run:
+        working-directory: live/networking
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init -reconfigure
+    - run: terraform apply -auto-approve -input=false
+
+  # ==========================================
+  # 5. IAM
+  # ==========================================
+  iam_plan:
+    name: 'Plan: iam'
+    runs-on: ubuntu-latest
+    needs: networking_apply
     defaults:
       run:
         working-directory: live/iam
-        
     steps:
     - uses: actions/checkout@v4
     - uses: google-github-actions/auth@v3
@@ -123,8 +187,23 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}
     - uses: hashicorp/setup-terraform@v4
     - run: terraform init -reconfigure
-    - run: terraform fmt # Removed the strict -check flag
-    - if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-    - if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
-      run: terraform apply -auto-approve -input=false
+    - run: terraform fmt
+    - run: terraform plan -no-color
+
+  iam_apply:
+    name: 'Apply: iam'
+    runs-on: ubuntu-latest
+    needs: iam_plan
+    environment: iam-env
+    defaults:
+      run:
+        working-directory: live/iam
+    steps:
+    - uses: actions/checkout@v4
+    - uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ env.WIF_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+    - uses: hashicorp/setup-terraform@v4
+    - run: terraform init -reconfigure
+    - run: terraform apply -auto-approve -input=false
