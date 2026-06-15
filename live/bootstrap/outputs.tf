@@ -1,7 +1,3 @@
-output "state_bucket_name" {
-  description = "GCS state bucket name — use this in all other live/ backend configs."
-  value       = module.bootstrap.state_bucket_name
-}
 
 output "wif_pool_name" {
   description = "Full WIF pool resource name."

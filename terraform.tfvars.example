@@ -27,8 +27,7 @@ billing_project    = "prj-sh-cicd"           # used for API quota
 # =============================================================================
 
 cicd_project_id       = "prj-sh-cicd"
-state_bucket_name     = "bkt-acco-tf-state-sh"
-state_bucket_location = "US"
+
 
 github_org = "AccoEngineeredSystems"
 

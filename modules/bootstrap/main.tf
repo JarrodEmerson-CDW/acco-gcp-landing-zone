@@ -24,31 +24,6 @@ locals {
   )
 }
 
-# ─── Terraform Remote State Bucket ───────────────────────────────────────────
-resource "google_storage_bucket" "tf_state" {
-  project                     = var.project_id
-  name                        = var.state_bucket_name
-  location                    = var.state_bucket_location
-  uniform_bucket_level_access = true
-
-  versioning {
-    enabled = var.state_bucket_versioning
-  }
-
-  # Prevent accidental deletion
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  labels = var.labels
-}
-
-# Deny public access
-resource "google_storage_bucket_iam_member" "deny_public" {
-  bucket = google_storage_bucket.tf_state.name
-  role   = "roles/storage.legacyBucketReader"
-  member = "projectViewer:${var.project_id}"
-}
 
 # ─── Workload Identity Pool ───────────────────────────────────────────────────
 resource "google_iam_workload_identity_pool" "github" {

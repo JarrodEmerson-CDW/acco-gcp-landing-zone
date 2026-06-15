@@ -133,10 +133,10 @@ gcloud services enable \
 
 ## Bootstrap — First Apply Order
 
-> **Important:** The bootstrap layer uses **local state** initially because the GCS state
-> bucket doesn't exist yet. After the first successful apply, migrate state to GCS.
+> **Important:** Before applying, you must manually create the GCS bucket `bkt-acco-tf-state-sh`
+> in your Google Cloud environment to hold the Terraform state.
 
-### Step 1 — Bootstrap (local state)
+### Step 1 — Bootstrap
 
 ```bash
 cd live/bootstrap
@@ -144,16 +144,6 @@ cp ../../terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars with real values
 terraform init
 terraform apply
-# Note the output: state_bucket_name
-```
-
-### Step 2 — Migrate bootstrap state to GCS
-
-Uncomment the `backend "gcs"` block in `live/bootstrap/versions.tf`, set the bucket name,
-then run:
-
-```bash
-terraform init -migrate-state
 ```
 
 ### Step 3 — Org (folder hierarchy + org policies)

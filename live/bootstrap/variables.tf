@@ -18,16 +18,6 @@ variable "cicd_folder_id" {
   type        = string
 }
 
-variable "state_bucket_name" {
-  description = "GCS bucket name for Terraform remote state."
-  type        = string
-}
-
-variable "state_bucket_location" {
-  description = "GCS location for the state bucket."
-  type        = string
-  default     = "US"
-}
 
 variable "github_org" {
   description = "GitHub organization name."

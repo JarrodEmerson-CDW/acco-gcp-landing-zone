@@ -12,11 +12,10 @@ terraform {
     }
   }
 
-  # Bootstrap uses local state initially; migrate to GCS after first apply
-  # backend "gcs" {
-  #   bucket = "bkt-acco-tf-state-sh"
-  #   prefix = "terraform/bootstrap"
-  # }
+  backend "gcs" {
+    bucket = "bkt-acco-tf-state-sh"
+    prefix = "terraform/bootstrap"
+  }
 }
 
 provider "google" {

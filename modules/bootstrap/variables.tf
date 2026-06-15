@@ -3,22 +3,6 @@ variable "project_id" {
   type        = string
 }
 
-variable "state_bucket_name" {
-  description = "Name of the GCS bucket to store Terraform remote state."
-  type        = string
-}
-
-variable "state_bucket_location" {
-  description = "GCS location for the Terraform state bucket."
-  type        = string
-  default     = "US"
-}
-
-variable "state_bucket_versioning" {
-  description = "Enable object versioning on the state bucket."
-  type        = bool
-  default     = true
-}
 
 variable "github_org" {
   description = "GitHub organization name for Workload Identity Federation (e.g. 'AccoEngineeredSystems')."
