@@ -126,7 +126,9 @@ gcloud services enable \
   cloudresourcemanager.googleapis.com \
   iam.googleapis.com iamcredentials.googleapis.com \
   sts.googleapis.com storage.googleapis.com \
-  --project=prj-sh-cicd
+  billingbudgets.googleapis.com \
+  pubsub.googleapis.com \
+  --project=prj-sh-cicd-499518
 ```
 
 ---
