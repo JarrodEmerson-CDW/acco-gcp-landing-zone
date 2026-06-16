@@ -210,6 +210,8 @@ gcloud iam workload-identity-pools providers describe "github-provider" \
 gcloud services enable iamcredentials.googleapis.com --project="${PROJECT_ID}"
 gcloud services enable cloudresourcemanager.googleapis.com --project="${PROJECT_ID}"
 gcloud services enable orgpolicy.googleapis.com --project="${PROJECT_ID}"
+gcloud services enable cloudbilling.googleapis.com --project="${PROJECT_ID}"
+
 
 # 12. Grant organization-level roles to the Service Account
 #     This is a Bash script designed to be executed directly in your Cloud Shell terminal.
