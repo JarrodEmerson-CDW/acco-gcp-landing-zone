@@ -212,6 +212,9 @@ gcloud services enable iamcredentials.googleapis.com --project="${PROJECT_ID}"
 gcloud services enable cloudresourcemanager.googleapis.com --project="${PROJECT_ID}"
 gcloud services enable orgpolicy.googleapis.com --project="${PROJECT_ID}"
 gcloud services enable cloudbilling.googleapis.com --project="${PROJECT_ID}"
+gcloud services enable billingbudgets.googleapis.com --project="${PROJECT_ID}"
+gcloud services enable pubsub.googleapis.com --project="${PROJECT_ID}"
+
 
 
 # 12. Grant organization-level roles to the Service Account

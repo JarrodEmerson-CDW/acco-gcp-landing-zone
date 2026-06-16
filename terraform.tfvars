@@ -493,25 +493,25 @@ iam_bindings = {
   # ── Org-level admin groups ──────────────────────────────────────────────────
   "org/org-admins/org-admin-role" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-organization-admins@accoes.com"
     role          = "roles/resourcemanager.organizationAdmin"
   }
   "org/billing-admins/billing-admin-role" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-billing-admins@accoes.com"
     role          = "roles/billing.admin"
   }
   "org/network-admins/compute-network-admin" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-sh-network-admins@accoes.com"
     role          = "roles/compute.networkAdmin"
   }
   "org/infra-admins/org-viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-sh-infrastructure-admins@accoes.com"
     role          = "roles/viewer"
   }
@@ -520,19 +520,19 @@ iam_bindings = {
   # Replace <folder_id_dev> etc. with actual folder IDs from live/org outputs.
   "folder/dev/gcp-dv-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/<folder_id_dev>"
+    resource_id   = "folders/256940436490"
     member        = "group:gcp-dv-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
   "folder/np/gcp-np-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/<folder_id_non_prod>"
+    resource_id   = "folders/554378128522"
     member        = "group:gcp-np-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
   "folder/prd/gcp-prd-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/<folder_id_prod>"
+    resource_id   = "folders/33490005889"
     member        = "group:gcp-prd-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
@@ -540,7 +540,7 @@ iam_bindings = {
   # ── Business-unit admin groups (example: controls in dev) ──────────────────
   "folder/dv-controls/gcp-dv-controls-admins/editor" = {
     resource_type = "folder"
-    resource_id   = "folders/<dv_controls_folder_id>"
+    resource_id   = "folders/1069859125065"
     member        = "group:gcp-dv-controls-admins@accoes.com"
     role          = "roles/editor"
   }
@@ -548,19 +548,19 @@ iam_bindings = {
   # ── Security Admins ────────────────────────────────────────────────────────
   "org/security-admins/viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/viewer"
   }
   "org/security-admins/scc-admin" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/securitycenter.admin"
   }
   "org/security-admins/iam-security-admin" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/iam.securityAdmin"
   }
@@ -568,13 +568,13 @@ iam_bindings = {
   # ── Gemini / AI Users ──────────────────────────────────────────────────────
   "org/gemini-users/discovery-viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-gemini-user@accoes.com"
     role          = "roles/discoveryengine.viewer"
   }
   "org/gemini-users/aiplatform-user" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-gemini-user@accoes.com"
     role          = "roles/aiplatform.user"
   }
@@ -582,13 +582,13 @@ iam_bindings = {
   # ── Gemini / AI Admins ─────────────────────────────────────────────────────
   "org/gemini-admins/discovery-admin" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-gemini-admins@accoes.com"
     role          = "roles/discoveryengine.admin"
   }
   "org/gemini-admins/aiplatform-admin" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-gemini-admins@accoes.com"
     role          = "roles/aiplatform.admin"
   }
@@ -596,25 +596,25 @@ iam_bindings = {
   # ── Service Desk Admins ────────────────────────────────────────────────────
   "org/service-desk-admins/viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/viewer"
   }
   "org/service-desk-admins/log-viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/logging.viewer"
   }
   "org/service-desk-admins/mon-viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/monitoring.viewer"
   }
   "org/service-desk-admins/support-admin" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/cloudsupport.admin"
   }
@@ -622,19 +622,19 @@ iam_bindings = {
   # ── Service Desk Users ─────────────────────────────────────────────────────
   "org/service-desk-users/viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/viewer"
   }
   "org/service-desk-users/log-viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/logging.viewer"
   }
   "org/service-desk-users/mon-viewer" = {
     resource_type = "organization"
-    resource_id   = "123456789012"
+    resource_id   = "823534780982"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/monitoring.viewer"
   }
@@ -678,7 +678,7 @@ log_sinks = {
     sink_project_id      = "prj-dv-log-mon"
     sink_name            = "sink-dv-org"
     parent_type          = "folder"
-    parent_id            = "folders/<folder_id_dev>"
+    parent_id            = "folders/256940436490"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-dv-logs-acco"
@@ -698,7 +698,7 @@ log_sinks = {
     sink_project_id      = "prj-np-log-mon"
     sink_name            = "sink-np-org"
     parent_type          = "folder"
-    parent_id            = "folders/<folder_id_non_prod>"
+    parent_id            = "folders/554378128522"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-np-logs-acco"
@@ -715,7 +715,7 @@ log_sinks = {
     sink_project_id      = "prj-prd-log-mon"
     sink_name            = "sink-prd-org"
     parent_type          = "folder"
-    parent_id            = "folders/<folder_id_prod>"
+    parent_id            = "folders/33490005889"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-prd-logs-acco"
