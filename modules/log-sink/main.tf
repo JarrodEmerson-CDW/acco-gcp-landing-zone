@@ -1,11 +1,11 @@
 locals {
-  has_pubsub      = var.pubsub_topic_name != ""
-  has_splunk      = var.splunk_subscription_name != "" && var.splunk_push_endpoint != ""
+  has_pubsub = var.pubsub_topic_name != ""
+  has_splunk = var.splunk_subscription_name != "" && var.splunk_push_endpoint != ""
 
   # Sink destination: PubSub when configured, else GCS directly
   sink_destination = local.has_pubsub ? (
     "pubsub.googleapis.com/projects/${var.sink_project_id}/topics/${var.pubsub_topic_name}"
-  ) : (
+    ) : (
     "storage.googleapis.com/${var.bucket_name}"
   )
 }
@@ -19,24 +19,24 @@ resource "google_pubsub_topic" "sink_topic" {
   labels  = var.labels
 }
 
-# ─── Optional Splunk push subscription ───────────────────────────────────────
-resource "google_pubsub_subscription" "splunk" {
-  count = local.has_splunk ? 1 : 0
-
-  project = var.sink_project_id
-  name    = var.splunk_subscription_name
-  topic   = google_pubsub_topic.sink_topic[0].name
-
-  push_config {
-    push_endpoint = var.splunk_push_endpoint
-  }
-
-  # Retain messages for 7 days to handle Splunk outages
-  message_retention_duration = "604800s"
-  retain_acked_messages      = false
-
-  depends_on = [google_pubsub_topic.sink_topic]
-}
+# ─── Optional Splunk push subscription (Commented out for now) ────────────────
+# resource "google_pubsub_subscription" "splunk" {
+#   count = local.has_splunk ? 1 : 0
+# 
+#   project = var.sink_project_id
+#   name    = var.splunk_subscription_name
+#   topic   = google_pubsub_topic.sink_topic[0].name
+# 
+#   push_config {
+#     push_endpoint = var.splunk_push_endpoint
+#   }
+# 
+#   # Retain messages for 7 days to handle Splunk outages
+#   message_retention_duration = "604800s"
+#   retain_acked_messages      = false
+# 
+#   depends_on = [google_pubsub_topic.sink_topic]
+# }
 
 # ─── GCS Bucket (log archive) ─────────────────────────────────────────────────
 resource "google_storage_bucket" "logs" {
@@ -145,6 +145,25 @@ resource "google_pubsub_topic_iam_member" "sink_writer_pubsub" {
   depends_on = [google_pubsub_topic.sink_topic]
 }
 
+data "google_project" "sink_project" {
+  project_id = var.sink_project_id
+}
+
+# ─── Grant Pub/Sub Service Agent access to the GCS bucket ─────────────────────
+resource "google_storage_bucket_iam_member" "pubsub_gcs_creator" {
+  count  = local.has_pubsub ? 1 : 0
+  bucket = google_storage_bucket.logs.name
+  role   = "roles/storage.objectCreator"
+  member = "serviceAccount:service-${data.google_project.sink_project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_storage_bucket_iam_member" "pubsub_gcs_reader" {
+  count  = local.has_pubsub ? 1 : 0
+  bucket = google_storage_bucket.logs.name
+  role   = "roles/storage.legacyBucketReader"
+  member = "serviceAccount:service-${data.google_project.sink_project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
 # ─── If PubSub is used, subscribe GCS to the topic as well (GCS pull) ─────────
 resource "google_pubsub_subscription" "gcs_subscription" {
   count = local.has_pubsub ? 1 : 0
@@ -158,5 +177,14 @@ resource "google_pubsub_subscription" "gcs_subscription" {
   retain_acked_messages      = false
   ack_deadline_seconds       = 600
 
-  depends_on = [google_pubsub_topic.sink_topic]
+  cloud_storage_config {
+    bucket = google_storage_bucket.logs.name
+  }
+
+  depends_on = [
+    google_pubsub_topic.sink_topic,
+    google_storage_bucket.logs,
+    google_storage_bucket_iam_member.pubsub_gcs_creator,
+    google_storage_bucket_iam_member.pubsub_gcs_reader
+  ]
 }

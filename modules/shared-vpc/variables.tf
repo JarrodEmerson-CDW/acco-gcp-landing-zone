@@ -46,12 +46,12 @@ variable "nat_config" {
     Key = region. Values control NAT behaviour.
   EOT
   type = map(object({
-    nat_ip_allocate_option             = optional(string, "AUTO_ONLY")
-    source_subnetwork_ip_ranges_to_nat = optional(string, "ALL_SUBNETWORKS_ALL_IP_RANGES")
-    min_ports_per_vm                   = optional(number, 64)
+    nat_ip_allocate_option              = optional(string, "AUTO_ONLY")
+    source_subnetwork_ip_ranges_to_nat  = optional(string, "ALL_SUBNETWORKS_ALL_IP_RANGES")
+    min_ports_per_vm                    = optional(number, 64)
     enable_endpoint_independent_mapping = optional(bool, true)
-    log_config_enable                  = optional(bool, false)
-    log_config_filter                  = optional(string, "ERRORS_ONLY")
+    log_config_enable                   = optional(bool, false)
+    log_config_filter                   = optional(string, "ERRORS_ONLY")
   }))
   default = {}
 }

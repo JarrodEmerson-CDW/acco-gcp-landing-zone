@@ -20,9 +20,9 @@ module "folders" {
 module "org_policies" {
   source = "../../modules/org-policies"
 
-  org_id                 = var.org_id
-  boolean_policies       = var.boolean_org_policies
-  list_policies          = var.list_org_policies
+  org_id                  = var.org_id
+  boolean_policies        = var.boolean_org_policies
+  list_policies           = var.list_org_policies
   folder_policy_overrides = var.folder_policy_overrides
 
   depends_on = [module.folders]

@@ -17,7 +17,7 @@ variable "service_accounts" {
     display_name  = string
     description   = optional(string, "")
     project_roles = optional(list(string), [])
-    iam_bindings = optional(map(list(string)), {})
+    iam_bindings  = optional(map(list(string)), {})
   }))
   default = {}
 }

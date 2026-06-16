@@ -21,8 +21,8 @@ variable "shared_subfolders" {
     (e.g. "networking" and "infrastructure" under shared-services, "cicd" under bootstrap).
     Key format: "<parent_display_name>/<child_display_name>"
   EOT
-  type    = map(string) # key = "parent_name/child_name", value = display name
-  default = {}
+  type        = map(string) # key = "parent_name/child_name", value = display name
+  default     = {}
 }
 
 variable "business_units" {

@@ -140,44 +140,111 @@ required APIs — are created **manually**, outside Terraform. They are not mana
 ### Step 0 — Manual bootstrap (one-time)
 
 Create the CI/CD project `prj-sh-cicd` (if it does not already exist) and enable the required
-APIs — see [Prerequisites](#prerequisites). Then create the state bucket and the Terraform
-service account:
+APIs — see [Prerequisites](#prerequisites). Then create the state bucket, service accounts and the integrations with WIF following the cli commands:
 
 ```bash
-# 1. GCS bucket to hold Terraform state (versioned, locked down)
-gcloud storage buckets create gs://bkt-acco-tf-state-sh \
-  --project=prj-sh-cicd \
+# 1. Set environment variables
+export PROJECT_ID=prj-sh-cicd
+export GITHUB_ORG=accoes
+export GITHUB_REPO=accoes/GCP-Infra-Landing-Zones
+export SA_NAME=acco-sa-terraform
+export BUCKET_NAME=bkt-acco-tf-state-sh
+export ORG_ID="YOUR_ORGANIZATION_ID_HERE" # e.g., 123456789012
+
+# 2. GCS bucket to hold Terraform state (versioned, locked down)
+gcloud storage buckets create "gs://${BUCKET_NAME}" \
+  --project="${PROJECT_ID}" \
   --location=us-west2 \
   --uniform-bucket-level-access \
   --public-access-prevention
-gcloud storage buckets update gs://bkt-acco-tf-state-sh --versioning
+gcloud storage buckets update "gs://${BUCKET_NAME}" --versioning
 
-# 2. Terraform service account used to run the live/ layers
-gcloud iam service-accounts create sa-tf-bootstrap \
-  --project=prj-sh-cicd \
-  --display-name="Terraform automation service account"
+# 3. Create the Service Account
+gcloud iam service-accounts create "${SA_NAME}" \
+  --project="${PROJECT_ID}" \
+  --display-name="GitHub Actions Terraform SA"
 
-# 3. Let the service account read/write Terraform state
-gcloud storage buckets add-iam-policy-binding gs://bkt-acco-tf-state-sh \
-  --member="serviceAccount:sa-tf-bootstrap@prj-sh-cicd.iam.gserviceaccount.com" \
+# 4. Grant the SA access to your existing state bucket
+gcloud storage buckets add-iam-policy-binding "gs://${BUCKET_NAME}" \
+  --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/storage.admin"
 
-# 4. Grant the service account the org-level roles it needs to build the landing zone
-#    (scope to your security posture; representative set shown)
-ORG_ID=<your-org-id>
+# 5. Grant the SA permission to deploy infrastructure (Editor role used for simplicity)
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+  --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/editor"
+
+# 6. Create the Workload Identity Pool
+gcloud iam workload-identity-pools create "github-pool" \
+  --project="${PROJECT_ID}" \
+  --location="global" \
+  --display-name="GitHub Actions Pool"
+
+# 7. Create the OIDC Provider within the Pool
+gcloud iam workload-identity-pools providers create-oidc "github-provider" \
+  --project="${PROJECT_ID}" \
+  --location="global" \
+  --workload-identity-pool="github-pool" \
+  --display-name="GitHub OIDC Provider" \
+  --issuer-uri="https://token.actions.githubusercontent.com" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
+  --attribute-condition="assertion.repository_owner == '${GITHUB_ORG}'"
+
+# 8. Get your numeric GCP Project Number
+export PROJECT_NUMBER=$(gcloud projects describe "${PROJECT_ID}" --format="value(projectNumber)")
+
+# 9. Allow the specific GitHub repository to impersonate the Service Account
+gcloud iam service-accounts add-iam-policy-binding "${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --project="${PROJECT_ID}" \
+  --role="roles/iam.workloadIdentityUser" \
+  --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-pool/attribute.repository/${GITHUB_REPO}"
+
+# 10. Get Workload Identity Provider name (record this value for your workflow YAML)
+gcloud iam workload-identity-pools providers describe "github-provider" \
+  --project="${PROJECT_ID}" \
+  --location="global" \
+  --workload-identity-pool="github-pool" \
+  --format="value(name)"
+
+# 11. Enable required APIs
+gcloud services enable iamcredentials.googleapis.com --project="${PROJECT_ID}"
+gcloud services enable cloudresourcemanager.googleapis.com --project="${PROJECT_ID}"
+gcloud services enable orgpolicy.googleapis.com --project="${PROJECT_ID}"
+
+# 12. Grant organization-level roles to the Service Account
+#     This is a Bash script designed to be executed directly in your Cloud Shell terminal.
+#     It uses a loop to programmatically assign the representative set of org-level roles
+#     defined below to the deployment Service Account in a single run.
 for ROLE in \
   roles/resourcemanager.folderAdmin \
   roles/resourcemanager.projectCreator \
-  roles/billing.user \
-  roles/resourcemanager.organizationViewer; do
+  roles/resourcemanager.organizationViewer \
+  roles/resourcemanager.lienModifier \
+  roles/compute.networkAdmin \
+  roles/compute.xpnAdmin \
+  roles/dns.admin \
+  roles/iam.securityAdmin \
+  roles/iam.serviceAccountAdmin \
+  roles/iam.serviceAccountKeyAdmin \
+  roles/iam.workloadIdentityPoolAdmin \
+  roles/securitycenter.admin \
+  roles/orgpolicy.policyAdmin \
+  roles/storage.admin \
+  roles/logging.admin \
+  roles/monitoring.admin \
+  roles/secretmanager.admin \
+  roles/serviceusage.serviceUsageAdmin \
+  roles/billing.admin \
+  roles/billing.user; do
+  echo "Granting $ROLE..."
   gcloud organizations add-iam-policy-binding "$ORG_ID" \
-    --member="serviceAccount:sa-tf-bootstrap@prj-sh-cicd.iam.gserviceaccount.com" \
-    --role="$ROLE"
+    --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+    --role="$ROLE" \
+    --condition=None > /dev/null 2>&1
 done
-```
 
-> Set `--location` to match your primary region. Impersonate `sa-tf-bootstrap` (or
-> authenticate as it) when running the Terraform layers below.
+echo "All roles have been processed!"
+```
 
 ### Step 1 — Org (folder hierarchy + org policies)
 

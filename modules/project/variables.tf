@@ -10,8 +10,8 @@ variable "project_name_template" {
     Tokens replaced: {env} {app}
     Example: "prj-{env}-{app}"
   EOT
-  type    = string
-  default = "prj-{env}-{app}"
+  type        = string
+  default     = "prj-{env}-{app}"
 }
 
 variable "env_code" {

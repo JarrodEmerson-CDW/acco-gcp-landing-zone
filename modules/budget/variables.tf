@@ -16,13 +16,13 @@ variable "budgets" {
     - pubsub_topic       : optional PubSub topic for programmatic alerting
   EOT
   type = map(object({
-    amount_usd           = optional(number, 0)
+    amount_usd             = optional(number, 0)
     use_last_period_amount = optional(bool, false)
-    project_ids          = optional(list(string), [])
-    alert_thresholds     = optional(list(number), [0.5, 0.75, 0.9, 1.0])
-    include_credits      = optional(bool, false)
-    notification_channels = optional(list(string), [])
-    pubsub_topic         = optional(string, "")
+    project_ids            = optional(list(string), [])
+    alert_thresholds       = optional(list(number), [0.5, 0.75, 0.9, 1.0])
+    include_credits        = optional(bool, false)
+    notification_channels  = optional(list(string), [])
+    pubsub_topic           = optional(string, "")
   }))
   default = {}
 }

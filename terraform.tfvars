@@ -18,9 +18,9 @@
 # GLOBAL IDENTIFIERS
 # =============================================================================
 
-org_id             = "823534780982"          # numeric Google Cloud Org ID
-billing_account_id = "013A23-1CE1FA-F39140"  # CDW-managed billing account
-billing_project    = "prj-sh-cicd"           # used for API quota
+org_id             = "823534780982"         # numeric Google Cloud Org ID
+billing_account_id = "013A23-1CE1FA-F39140" # CDW-managed billing account
+billing_project    = "prj-sh-cicd"          # used for API quota
 
 
 # =============================================================================
@@ -57,9 +57,9 @@ top_level_folders = {
 # Sub-folders under non-BU top-level folders.
 # Key format: "<parent display name>/<child display name>"
 shared_subfolders = {
-  "shared-services/networking"      = "networking"
-  "shared-services/infrastructure"  = "infrastructure"
-  "bootstrap/cicd"                  = "cicd"
+  "shared-services/networking"     = "networking"
+  "shared-services/infrastructure" = "infrastructure"
+  "bootstrap/cicd"                 = "cicd"
 }
 
 # Business units repeated under dev / non-prod / prod
@@ -72,7 +72,7 @@ business_units = [
   "field",
   "operations",
   "administration",
-  "branch-plants",   # placeholder — no child resources created by default
+  "branch-plants", # placeholder — no child resources created by default
 ]
 
 # =============================================================================
@@ -93,12 +93,12 @@ list_org_policies = {
     deny_values  = []
   }
   # Domain-restricted sharing: only accoes.com identities
-#  "constraints/iam.allowedPolicyMemberDomains" = {
-#    allow_all    = false
-#    deny_all     = false
-#    allow_values = ["accoes.com"]
-#    deny_values  = []
-#  }
+  #  "constraints/iam.allowedPolicyMemberDomains" = {
+  #    allow_all    = false
+  #    deny_all     = false
+  #    allow_values = ["accoes.com"]
+  #    deny_values  = []
+  #  }
 }
 
 # Per-folder overrides — fill in folder IDs after live/org apply
@@ -281,17 +281,17 @@ hub_nat_config = {
 
 hub_firewall_rules = {
   "fw-interconnect-deny-egress-default" = {
-    direction = "EGRESS"
-    priority  = 65534
-    ranges    = ["0.0.0.0/0"]
-    deny = [{ protocol = "all" }]
+    direction   = "EGRESS"
+    priority    = 65534
+    ranges      = ["0.0.0.0/0"]
+    deny        = [{ protocol = "all" }]
     description = "Default deny all egress"
   }
   "fw-interconnect-allow-iap-ingress" = {
-    direction = "INGRESS"
-    priority  = 1000
-    ranges    = ["35.235.240.0/20"]
-    allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
+    direction   = "INGRESS"
+    priority    = 1000
+    ranges      = ["35.235.240.0/20"]
+    allow       = [{ protocol = "tcp", ports = ["22", "3389"] }]
     description = "Allow IAP for SSH/RDP"
   }
 }
@@ -331,40 +331,40 @@ spoke_vpcs = {
     }
     firewall_rules = {
       "fw-dev-deny-egress-default" = {
-        direction = "EGRESS"
-        priority  = 65534
-        ranges    = ["0.0.0.0/0"]
-        deny      = [{ protocol = "all" }]
+        direction   = "EGRESS"
+        priority    = 65534
+        ranges      = ["0.0.0.0/0"]
+        deny        = [{ protocol = "all" }]
         description = "Default deny all egress"
       }
       "fw-dev-allow-iap-ingress" = {
-        direction = "INGRESS"
-        priority  = 1000
-        ranges    = ["35.235.240.0/20"]
-        allow     = [{ protocol = "tcp", ports = ["22", "3389"] }]
+        direction   = "INGRESS"
+        priority    = 1000
+        ranges      = ["35.235.240.0/20"]
+        allow       = [{ protocol = "tcp", ports = ["22", "3389"] }]
         description = "Allow IAP for SSH/RDP"
       }
       "fw-dev-allow-internal-ingress" = {
-        direction = "INGRESS"
-        priority  = 1000
-        ranges    = ["10.143.0.0/16"]
-        allow     = [{ protocol = "all" }]
+        direction   = "INGRESS"
+        priority    = 1000
+        ranges      = ["10.143.0.0/16"]
+        allow       = [{ protocol = "all" }]
         description = "Allow internal dev traffic"
       }
       "fw-dev-allow-ingress-from-interconnect" = {
-        direction = "INGRESS"
-        priority  = 900
-        ranges    = ["10.146.0.0/16"]
-        allow     = [{ protocol = "all" }]
+        direction   = "INGRESS"
+        priority    = 900
+        ranges      = ["10.146.0.0/16"]
+        allow       = [{ protocol = "all" }]
         description = "Allow ingress from interconnect (on-prem via hub)"
       }
     }
   }
 
   "non-prod" = {
-    host_project_id = "prj-np-network"
-    network_name    = "vpc-non-prod"
-    cidr_block      = "10.144.0.0/16"
+    host_project_id     = "prj-np-network"
+    network_name        = "vpc-non-prod"
+    cidr_block          = "10.144.0.0/16"
     service_project_ids = []
     subnets = {
       "np-vpc-subnet-primary-us-west1" = {
@@ -402,19 +402,19 @@ spoke_vpcs = {
         allow     = [{ protocol = "all" }]
       }
       "fw-np-allow-ingress-from-interconnect" = {
-        direction = "INGRESS"
-        priority  = 900
-        ranges    = ["10.146.0.0/16"]
-        allow     = [{ protocol = "all" }]
+        direction   = "INGRESS"
+        priority    = 900
+        ranges      = ["10.146.0.0/16"]
+        allow       = [{ protocol = "all" }]
         description = "Allow ingress from interconnect (on-prem via hub)"
       }
     }
   }
 
   "prod" = {
-    host_project_id = "prj-prd-network"
-    network_name    = "vpc-prod"
-    cidr_block      = "10.145.0.0/16"
+    host_project_id     = "prj-prd-network"
+    network_name        = "vpc-prod"
+    cidr_block          = "10.145.0.0/16"
     service_project_ids = []
     subnets = {
       "prd-vpc-subnet-primary-us-west1" = {
@@ -452,10 +452,10 @@ spoke_vpcs = {
         allow     = [{ protocol = "all" }]
       }
       "fw-prd-allow-ingress-from-interconnect" = {
-        direction = "INGRESS"
-        priority  = 900
-        ranges    = ["10.146.0.0/16"]
-        allow     = [{ protocol = "all" }]
+        direction   = "INGRESS"
+        priority    = 900
+        ranges      = ["10.146.0.0/16"]
+        allow       = [{ protocol = "all" }]
         description = "Allow ingress from interconnect (on-prem via hub)"
       }
     }
@@ -469,7 +469,7 @@ private_dns_zones = {
   "private-hub-core" = {
     dns_name    = "accoes.internal."
     description = "ACCO internal private DNS zone (hub)"
-    networks    = [
+    networks = [
       # Add VPC self-links after networking apply:
       # "https://www.googleapis.com/compute/v1/projects/prj-sh-interconnect/global/networks/vpc-interconnect",
     ]
@@ -703,15 +703,15 @@ service_accounts = {
 # ── Log Sinks ─────────────────────────────────────────────────────────────────
 log_sinks = {
   "dev-org-sink" = {
-    sink_project_id  = "prj-dv-log-mon"
-    sink_name        = "sink-dv-org"
-    parent_type      = "folder"
-    parent_id        = "folders/<folder_id_dev>"
-    filter           = ""
-    include_children = true
-    bucket_name      = "bkt-dv-logs-acco"
-    bucket_location  = "US"
-    retention_days   = 30
+    sink_project_id      = "prj-dv-log-mon"
+    sink_name            = "sink-dv-org"
+    parent_type          = "folder"
+    parent_id            = "folders/<folder_id_dev>"
+    filter               = ""
+    include_children     = true
+    bucket_name          = "bkt-dv-logs-acco"
+    bucket_location      = "US"
+    retention_days       = 30
     audit_retention_days = 400
     nearline_age_days    = 30
     archive_age_days     = 90
@@ -736,7 +736,7 @@ log_sinks = {
     nearline_age_days    = 30
     archive_age_days     = 90
     pubsub_topic_name    = "topic-np-logs"
-    labels = { environment = "np" }
+    labels               = { environment = "np" }
   }
 
   "prd-org-sink" = {
@@ -753,7 +753,7 @@ log_sinks = {
     nearline_age_days    = 30
     archive_age_days     = 90
     pubsub_topic_name    = "topic-prd-logs"
-    labels = { environment = "prd" }
+    labels               = { environment = "prd" }
   }
 }
 
@@ -761,17 +761,17 @@ log_sinks = {
 budgets = {
   # Fixed-dollar alert: fires when spend reaches 50%, 90%, or 100% of $500
   "dollar-billing-alert" = {
-    amount_usd            = 500
+    amount_usd             = 500
     use_last_period_amount = false
-    project_ids           = []   # empty = entire billing account
-    alert_thresholds      = [0.5, 0.9, 1.0]
-    include_credits       = false
-    notification_channels = []
+    project_ids            = [] # empty = entire billing account
+    alert_thresholds       = [0.5, 0.9, 1.0]
+    include_credits        = false
+    notification_channels  = []
   }
   # Percentage-of-last-month alert: fires when spend reaches 50%, 90%, or 100% of last month's spend
   "percentage-billing-alert" = {
     use_last_period_amount = true
-    project_ids            = []   # empty = entire billing account
+    project_ids            = [] # empty = entire billing account
     alert_thresholds       = [0.5, 0.9, 1.0]
     include_credits        = false
     notification_channels  = []

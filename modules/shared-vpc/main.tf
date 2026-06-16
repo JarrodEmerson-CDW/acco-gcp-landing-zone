@@ -58,13 +58,13 @@ resource "google_compute_router" "routers" {
 resource "google_compute_router_nat" "nats" {
   for_each = var.nat_config
 
-  project                            = var.host_project_id
-  name                               = "${var.network_name}-nat-${each.key}"
-  router                             = google_compute_router.routers[each.key].name
-  region                             = each.key
-  nat_ip_allocate_option             = each.value.nat_ip_allocate_option
-  source_subnetwork_ip_ranges_to_nat = each.value.source_subnetwork_ip_ranges_to_nat
-  min_ports_per_vm                   = each.value.min_ports_per_vm
+  project                             = var.host_project_id
+  name                                = "${var.network_name}-nat-${each.key}"
+  router                              = google_compute_router.routers[each.key].name
+  region                              = each.key
+  nat_ip_allocate_option              = each.value.nat_ip_allocate_option
+  source_subnetwork_ip_ranges_to_nat  = each.value.source_subnetwork_ip_ranges_to_nat
+  min_ports_per_vm                    = each.value.min_ports_per_vm
   enable_endpoint_independent_mapping = each.value.enable_endpoint_independent_mapping
 
   log_config {
@@ -86,10 +86,10 @@ resource "google_compute_firewall" "rules" {
   direction   = each.value.direction
   priority    = each.value.priority
 
-  source_ranges          = each.value.direction == "INGRESS" ? each.value.ranges : null
-  destination_ranges     = each.value.direction == "EGRESS" ? each.value.ranges : null
-  target_tags            = length(each.value.target_tags) > 0 ? each.value.target_tags : null
-  source_tags            = each.value.direction == "INGRESS" && length(each.value.source_tags) > 0 ? each.value.source_tags : null
+  source_ranges           = each.value.direction == "INGRESS" ? each.value.ranges : null
+  destination_ranges      = each.value.direction == "EGRESS" ? each.value.ranges : null
+  target_tags             = length(each.value.target_tags) > 0 ? each.value.target_tags : null
+  source_tags             = each.value.direction == "INGRESS" && length(each.value.source_tags) > 0 ? each.value.source_tags : null
   source_service_accounts = length(each.value.source_service_accounts) > 0 ? each.value.source_service_accounts : null
 
   dynamic "allow" {

@@ -44,12 +44,12 @@ variable "folder_policy_overrides" {
     - policy_type : "boolean" | "list"
   EOT
   type = map(object({
-    folder_id   = string
-    constraint  = string
-    policy_type = string
-    enforced    = optional(bool, null)
-    allow_all   = optional(bool, false)
-    deny_all    = optional(bool, false)
+    folder_id    = string
+    constraint   = string
+    policy_type  = string
+    enforced     = optional(bool, null)
+    allow_all    = optional(bool, false)
+    deny_all     = optional(bool, false)
     allow_values = optional(list(string), [])
     deny_values  = optional(list(string), [])
   }))
