@@ -21,6 +21,8 @@
 org_id             = "823534780982"         # numeric Google Cloud Org ID
 billing_account_id = "013A23-1CE1FA-F39140" # CDW-managed billing account
 billing_project    = "prj-sh-cicd"          # used for API quota
+project_suffix     = "0982"                 # appended to project IDs to ensure uniqueness
+
 
 
 # =============================================================================

@@ -9,7 +9,7 @@ locals {
 module "hub_vpc" {
   source = "../../modules/shared-vpc"
 
-  host_project_id = var.hub_project_id
+  host_project_id = var.project_suffix != "" ? "${var.hub_project_id}-${var.project_suffix}" : var.hub_project_id
   network_name    = var.hub_network_name
   subnets         = var.hub_subnets
   nat_config      = var.hub_nat_config
@@ -27,7 +27,7 @@ module "spoke_vpcs" {
   source   = "../../modules/shared-vpc"
   for_each = var.spoke_vpcs
 
-  host_project_id                 = each.value.host_project_id
+  host_project_id                 = var.project_suffix != "" ? "${each.value.host_project_id}-${var.project_suffix}" : each.value.host_project_id
   network_name                    = each.value.network_name
   subnets                         = each.value.subnets
   nat_config                      = each.value.nat_config
@@ -44,9 +44,9 @@ module "vpc_peering" {
   source   = "../../modules/vpc-peering"
   for_each = var.spoke_vpcs
 
-  local_project_id   = each.value.host_project_id
+  local_project_id   = var.project_suffix != "" ? "${each.value.host_project_id}-${var.project_suffix}" : each.value.host_project_id
   local_network_name = each.value.network_name
-  peer_project_id    = var.hub_project_id
+  peer_project_id    = var.project_suffix != "" ? "${var.hub_project_id}-${var.project_suffix}" : var.hub_project_id
   peer_network_name  = var.hub_network_name
 
   # Spokes do NOT export/import custom routes to prevent transitive routing
@@ -63,7 +63,7 @@ module "vpc_peering" {
 module "dns" {
   source = "../../modules/dns"
 
-  project_id       = var.dns_project_id
+  project_id       = var.project_suffix != "" ? "${var.dns_project_id}-${var.project_suffix}" : var.dns_project_id
   private_zones    = var.private_dns_zones
   peering_zones    = var.peering_dns_zones
   forwarding_zones = var.forwarding_dns_zones

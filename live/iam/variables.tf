@@ -84,3 +84,10 @@ variable "labels" {
   type        = map(string)
   default     = {}
 }
+
+variable "project_suffix" {
+  description = "Suffix appended to project IDs to ensure uniqueness."
+  type        = string
+  default     = ""
+}
+

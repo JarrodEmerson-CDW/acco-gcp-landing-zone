@@ -14,6 +14,7 @@ module "projects" {
   env_code              = each.value.env_code
   app                   = each.value.app
   project_name_template = var.project_name_template
+  project_suffix        = var.project_suffix
   folder_id             = each.value.folder_id
   billing_account_id    = var.billing_account_id
   apis                  = distinct(concat(var.default_project_apis, each.value.additional_apis))

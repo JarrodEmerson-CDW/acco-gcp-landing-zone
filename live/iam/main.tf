@@ -35,7 +35,7 @@ module "service_accounts" {
   source   = "../../modules/service-accounts"
   for_each = local.sas_by_project
 
-  project_id = each.key
+  project_id = var.project_suffix != "" ? "${each.key}-${var.project_suffix}" : each.key
   service_accounts = {
     for sa_key, sa_cfg in each.value : sa_key => {
       display_name  = sa_cfg.display_name
@@ -52,7 +52,7 @@ module "log_sinks" {
   source   = "../../modules/log-sink"
   for_each = var.log_sinks
 
-  sink_project_id          = each.value.sink_project_id
+  sink_project_id          = var.project_suffix != "" ? "${each.value.sink_project_id}-${var.project_suffix}" : each.value.sink_project_id
   sink_name                = each.value.sink_name
   parent_type              = each.value.parent_type
   parent_id                = each.value.parent_id

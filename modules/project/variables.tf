@@ -57,3 +57,10 @@ variable "skip_delete" {
   type        = bool
   default     = false
 }
+
+variable "project_suffix" {
+  description = "Suffix appended to the project ID to ensure uniqueness."
+  type        = string
+  default     = ""
+}
+
