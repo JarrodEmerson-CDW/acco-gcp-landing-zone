@@ -520,19 +520,19 @@ iam_bindings = {
   # Replace <folder_id_dev> etc. with actual folder IDs from live/org outputs.
   "folder/dev/gcp-dv-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/256940436490"
+    resource_id   = "folders/533502617187"
     member        = "group:gcp-dv-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
   "folder/np/gcp-np-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/554378128522"
+    resource_id   = "folders/54798891310"
     member        = "group:gcp-np-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
   "folder/prd/gcp-prd-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/33490005889"
+    resource_id   = "folders/364072376899"
     member        = "group:gcp-prd-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
@@ -540,7 +540,7 @@ iam_bindings = {
   # ── Business-unit admin groups (example: controls in dev) ──────────────────
   "folder/dv-controls/gcp-dv-controls-admins/editor" = {
     resource_type = "folder"
-    resource_id   = "folders/1069859125065"
+    resource_id   = "folders/708275502728"
     member        = "group:gcp-dv-controls-admins@accoes.com"
     role          = "roles/editor"
   }
@@ -678,7 +678,7 @@ log_sinks = {
     sink_project_id      = "prj-dv-log-mon"
     sink_name            = "sink-dv-org"
     parent_type          = "folder"
-    parent_id            = "folders/256940436490"
+    parent_id            = "folders/533502617187"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-dv-logs-acco"
@@ -698,7 +698,7 @@ log_sinks = {
     sink_project_id      = "prj-np-log-mon"
     sink_name            = "sink-np-org"
     parent_type          = "folder"
-    parent_id            = "folders/554378128522"
+    parent_id            = "folders/54798891310"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-np-logs-acco"
@@ -715,7 +715,7 @@ log_sinks = {
     sink_project_id      = "prj-prd-log-mon"
     sink_name            = "sink-prd-org"
     parent_type          = "folder"
-    parent_id            = "folders/33490005889"
+    parent_id            = "folders/364072376899"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-prd-logs-acco"
