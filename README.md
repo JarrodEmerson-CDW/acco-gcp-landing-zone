@@ -150,6 +150,7 @@ export GITHUB_REPO=accoes/GCP-Infra-Landing-Zones
 export SA_NAME=acco-sa-terraform
 export BUCKET_NAME=bkt-acco-tf-state-sh
 export ORG_ID="YOUR_ORGANIZATION_ID_HERE" # e.g., 123456789012
+export BILLING_ACCOUNT_ID="YOUR_BILLING_ACCOUNT_ID_HERE" # e.g., 012345-6789AB-CDEF01
 
 # 2. GCS bucket to hold Terraform state (versioned, locked down)
 gcloud storage buckets create "gs://${BUCKET_NAME}" \
@@ -246,6 +247,12 @@ for ROLE in \
 done
 
 echo "All roles have been processed!"
+
+# 13. Grant Billing Account User role on the Billing Account
+
+gcloud billing accounts add-iam-policy-binding "${BILLING_ACCOUNT_ID}" \
+  --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/billing.user"
 ```
 
 ### Step 1 — Org (folder hierarchy + org policies)

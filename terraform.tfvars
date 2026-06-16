@@ -133,7 +133,7 @@ projects = {
   "dv-network" = {
     env_code  = "dv"
     app       = "network"
-    folder_id = "folders/<networking_subfolder_id>"
+    folder_id = "folders/33490005889"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -142,7 +142,7 @@ projects = {
   "np-network" = {
     env_code  = "np"
     app       = "network"
-    folder_id = "folders/<networking_subfolder_id>"
+    folder_id = "folders/33490005889"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -151,7 +151,7 @@ projects = {
   "prd-network" = {
     env_code  = "prd"
     app       = "network"
-    folder_id = "folders/<networking_subfolder_id>"
+    folder_id = "folders/33490005889"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -161,7 +161,7 @@ projects = {
   "sh-interconnect" = {
     env_code  = "sh"
     app       = "interconnect"
-    folder_id = "folders/<networking_subfolder_id>"
+    folder_id = "folders/33490005889"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -173,7 +173,7 @@ projects = {
   "dv-log-mon" = {
     env_code  = "dv"
     app       = "log-mon"
-    folder_id = "folders/<infrastructure_subfolder_id>"
+    folder_id = "folders/427602232442"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
@@ -182,7 +182,7 @@ projects = {
   "np-log-mon" = {
     env_code  = "np"
     app       = "log-mon"
-    folder_id = "folders/<infrastructure_subfolder_id>"
+    folder_id = "folders/427602232442"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
@@ -191,7 +191,7 @@ projects = {
   "prd-log-mon" = {
     env_code  = "prd"
     app       = "log-mon"
-    folder_id = "folders/<infrastructure_subfolder_id>"
+    folder_id = "folders/427602232442"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
@@ -201,7 +201,7 @@ projects = {
   "sh-operations" = {
     env_code  = "sh"
     app       = "operations"
-    folder_id = "folders/<infrastructure_subfolder_id>"
+    folder_id = "folders/427602232442"
     additional_apis = [
       "monitoring.googleapis.com",
       "cloudtrace.googleapis.com",
@@ -212,7 +212,7 @@ projects = {
   "sh-cicd" = {
     env_code  = "sh"
     app       = "cicd"
-    folder_id = "folders/<bootstrap_cicd_subfolder_id>"
+    folder_id = "folders/256940436490"
     additional_apis = [
       "iam.googleapis.com",
       "iamcredentials.googleapis.com",

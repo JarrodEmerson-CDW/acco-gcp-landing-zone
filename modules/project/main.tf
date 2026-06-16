@@ -9,7 +9,7 @@ locals {
 resource "google_project" "this" {
   name                = local._project_id
   project_id          = local._project_id
-  folder_id           = var.folder_id
+  folder_id           = replace(var.folder_id, "folders/", "")
   billing_account     = var.billing_account_id
   auto_create_network = var.auto_create_network
   skip_delete         = var.skip_delete
