@@ -8,11 +8,6 @@ variable "billing_project" {
   type        = string
 }
 
-variable "billing_account_id" {
-  description = "Billing account ID."
-  type        = string
-}
-
 variable "top_level_folders" {
   description = <<-EOT
     Top-level folder definitions.

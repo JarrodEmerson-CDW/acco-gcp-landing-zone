@@ -1,8 +1,3 @@
-variable "org_id" {
-  description = "Google Cloud Organization ID."
-  type        = string
-}
-
 variable "billing_account_id" {
   description = "Billing account ID."
   type        = string

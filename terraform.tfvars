@@ -208,7 +208,6 @@ projects = {
     ]
   }
 
-
   # ── To add a new project: add an entry here. No code changes needed. ──────
   # "dv-controls-app1" = {
   #   env_code  = "dv"
