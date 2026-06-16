@@ -208,34 +208,6 @@ projects = {
     ]
   }
 
-  # ── Bootstrap / CICD ──────────────────────────────────────────────────────
-  "sh-cicd" = {
-    env_code  = "sh"
-    app       = "cicd"
-    folder_id = "folders/256940436490"
-    additional_apis = [
-      "iam.googleapis.com",
-      "iamcredentials.googleapis.com",
-      "sts.googleapis.com",
-      "storage.googleapis.com",
-      "cloudresourcemanager.googleapis.com",
-      "cloudbilling.googleapis.com",
-      "orgpolicy.googleapis.com",
-      "servicenetworking.googleapis.com",
-      "compute.googleapis.com",
-      "dns.googleapis.com",
-      "monitoring.googleapis.com",
-      "logging.googleapis.com",
-      "pubsub.googleapis.com",
-      "bigquery.googleapis.com",
-      "cloudbuild.googleapis.com",
-      "artifactregistry.googleapis.com",
-      "secretmanager.googleapis.com",
-      "securitycenter.googleapis.com",
-      "accesscontextmanager.googleapis.com",
-    ]
-    skip_delete = true
-  }
 
   # ── To add a new project: add an entry here. No code changes needed. ──────
   # "dv-controls-app1" = {
