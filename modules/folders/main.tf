@@ -9,12 +9,11 @@ locals {
     }
   }
 
-  # Flatten business-unit sub-folders: only under folders with has_bu_subs=true
   bu_pairs = flatten([
     for fname, fcfg in var.top_level_folders : [
       for bu in var.business_units : {
         key          = "${fname}/${bu}"
-        display_name = bu
+        display_name = "${fcfg.code}-${bu}"
         parent_key   = fname
       }
     ]

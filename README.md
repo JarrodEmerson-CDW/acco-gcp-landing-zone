@@ -34,20 +34,20 @@ by variables — **no structural code changes are ever required** to reconfigure
 ```
 Organization: accoes.com
 │
-├── dev/                     (code: dv)
-│   ├── controls/
-│   ├── facilities/
-│   ├── construction/
-│   ├── engineering/
-│   ├── shop/
-│   ├── field/
-│   ├── operations/
-│   ├── administration/
-│   └── branch-plants/
-├── non-prod/                (code: np)
-│   └── <same BU subfolders>
-├── prod/                    (code: pd)
-│   └── <same BU subfolders>
+├── dv/                      (dev folder)
+│   ├── dv-controls/
+│   ├── dv-facilities/
+│   ├── dv-construction/
+│   ├── dv-engineering/
+│   ├── dv-shop/
+│   ├── dv-field/
+│   ├── dv-operations/
+│   ├── dv-administration/
+│   └── dv-branch-plants/
+├── np/                      (non-prod folder)
+│   └── <same BU subfolders prefixed with np->
+├── pd/                      (prod folder)
+│   └── <same BU subfolders prefixed with pd->
 ├── shared-services/         (code: sh)
 │   ├── networking/
 │   │   ├── prj-dv-network   (Shared VPC host — dev)
@@ -62,7 +62,7 @@ Organization: accoes.com
 ├── bootstrap/               (code: sh)
 │   └── cicd/
 │       └── prj-sh-cicd      (state bucket, WIF pool, seed SAs)
-└── sandbox/                 (code: sb)
+└── sb/                      (sandbox folder)
 ```
 
 **Networking (hub-and-spoke):**

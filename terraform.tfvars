@@ -30,16 +30,16 @@ project_suffix     = "0982"                 # appended to project IDs to ensure 
 # =============================================================================
 
 top_level_folders = {
-  "dev" = {
+  "dv" = {
     code        = "dv"
     has_bu_subs = true
   }
-  "non-prod" = {
+  "np" = {
     code        = "np"
     has_bu_subs = true
   }
-  "prod" = {
-    code        = "prd"
+  "pd" = {
+    code        = "pd"
     has_bu_subs = true
   }
   "shared-services" = {
@@ -50,7 +50,7 @@ top_level_folders = {
     code        = "sh"
     has_bu_subs = false
   }
-  "sandbox" = {
+  "sb" = {
     code        = "sb"
     has_bu_subs = false
   }
