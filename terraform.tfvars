@@ -167,7 +167,6 @@ projects = {
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
-      "interconnect.googleapis.com",
     ]
   }
 
