@@ -69,12 +69,13 @@ variable "log_sinks" {
 variable "budgets" {
   description = "Billing budgets. See budget module for schema."
   type = map(object({
-    amount_usd            = number
-    project_ids           = optional(list(string), [])
-    alert_thresholds      = optional(list(number), [0.5, 0.75, 0.9, 1.0])
-    include_credits       = optional(bool, false)
-    notification_channels = optional(list(string), [])
-    pubsub_topic          = optional(string, "")
+    amount_usd             = optional(number, 0)
+    use_last_period_amount = optional(bool, false)
+    project_ids            = optional(list(string), [])
+    alert_thresholds       = optional(list(number), [0.5, 0.75, 0.9, 1.0])
+    include_credits        = optional(bool, false)
+    notification_channels  = optional(list(string), [])
+    pubsub_topic           = optional(string, "")
   }))
   default = {}
 }

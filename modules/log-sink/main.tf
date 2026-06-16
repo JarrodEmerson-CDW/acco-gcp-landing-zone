@@ -126,7 +126,7 @@ locals {
 
 # ─── Grant sink writer access to the GCS bucket ───────────────────────────────
 resource "google_storage_bucket_iam_member" "sink_writer_gcs" {
-  count = local.sink_destination == "storage.googleapis.com/${var.bucket_name}" && local.sink_writer_identity != "" ? 1 : 0
+  count = local.sink_destination == "storage.googleapis.com/${var.bucket_name}" ? 1 : 0
 
   bucket = google_storage_bucket.logs.name
   role   = "roles/storage.objectCreator"
@@ -135,7 +135,7 @@ resource "google_storage_bucket_iam_member" "sink_writer_gcs" {
 
 # ─── Grant sink writer access to PubSub topic ─────────────────────────────────
 resource "google_pubsub_topic_iam_member" "sink_writer_pubsub" {
-  count = local.has_pubsub && local.sink_writer_identity != "" ? 1 : 0
+  count = local.has_pubsub ? 1 : 0
 
   project = var.sink_project_id
   topic   = google_pubsub_topic.sink_topic[0].name
