@@ -18,7 +18,7 @@ variable "top_level_folders" {
 variable "shared_subfolders" {
   description = <<-EOT
     Map of sub-folder names to create under folders that are NOT business-unit driven
-    (e.g. "networking" and "infrastructure" under shared-services, "cicd" under bootstrap).
+    (e.g. "networking" and "infrastructure" under sh).
     Key format: "<parent_display_name>/<child_display_name>"
   EOT
   type        = map(string) # key = "parent_name/child_name", value = display name

@@ -18,10 +18,10 @@
 # GLOBAL IDENTIFIERS
 # =============================================================================
 
-org_id             = "823534780982"         # numeric Google Cloud Org ID
-billing_account_id = "013A23-1CE1FA-F39140" # CDW-managed billing account
+org_id             = "80203213781"         # numeric Google Cloud Org ID
+billing_account_id = "018112-5645D3-F1B84F" # CDW-managed billing account
 billing_project    = "prj-sh-cicd"          # used for API quota
-project_suffix     = "0982"                 # appended to project IDs to ensure uniqueness
+project_suffix     = "3781"                 # appended to project IDs to ensure uniqueness
 
 
 
@@ -42,11 +42,7 @@ top_level_folders = {
     code        = "pd"
     has_bu_subs = true
   }
-  "shared-services" = {
-    code        = "sh"
-    has_bu_subs = false
-  }
-  "bootstrap" = {
+  "sh" = {
     code        = "sh"
     has_bu_subs = false
   }
@@ -59,9 +55,8 @@ top_level_folders = {
 # Sub-folders under non-BU top-level folders.
 # Key format: "<parent display name>/<child display name>"
 shared_subfolders = {
-  "shared-services/networking"     = "networking"
-  "shared-services/infrastructure" = "infrastructure"
-  "bootstrap/cicd"                 = "cicd"
+  "sh/networking"     = "sh-networking"
+  "sh/infrastructure" = "sh-infrastructure"
 }
 
 # Business units repeated under dev / non-prod / prod
@@ -74,7 +69,6 @@ business_units = [
   "field",
   "operations",
   "administration",
-  "branch-plants", # placeholder — no child resources created by default
 ]
 
 # =============================================================================
@@ -107,7 +101,7 @@ list_org_policies = {
 # Example: allow a sandbox project to have external IPs
 folder_policy_overrides = {
   # "sandbox/vmExternalIpAccess" = {
-  #   folder_id   = "123456789"  # numeric ID of the sandbox folder
+  #   folder_id   = "<sandbox_folder_id>"  # numeric ID of the sandbox folder
   #   constraint  = "constraints/compute.vmExternalIpAccess"
   #   policy_type = "list"
   #   allow_all   = true
@@ -135,7 +129,7 @@ projects = {
   "dv-network" = {
     env_code  = "dv"
     app       = "network"
-    folder_id = "folders/33490005889"
+    folder_id = "folders/<sh_networking_folder_id>"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -144,7 +138,7 @@ projects = {
   "np-network" = {
     env_code  = "np"
     app       = "network"
-    folder_id = "folders/33490005889"
+    folder_id = "folders/<sh_networking_folder_id>"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -153,7 +147,7 @@ projects = {
   "prd-network" = {
     env_code  = "prd"
     app       = "network"
-    folder_id = "folders/33490005889"
+    folder_id = "folders/<sh_networking_folder_id>"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -163,7 +157,7 @@ projects = {
   "sh-interconnect" = {
     env_code  = "sh"
     app       = "interconnect"
-    folder_id = "folders/33490005889"
+    folder_id = "folders/<sh_networking_folder_id>"
     additional_apis = [
       "dns.googleapis.com",
       "networkmanagement.googleapis.com",
@@ -174,7 +168,7 @@ projects = {
   "dv-log-mon" = {
     env_code  = "dv"
     app       = "log-mon"
-    folder_id = "folders/427602232442"
+    folder_id = "folders/<sh_infrastructure_folder_id>"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
@@ -183,7 +177,7 @@ projects = {
   "np-log-mon" = {
     env_code  = "np"
     app       = "log-mon"
-    folder_id = "folders/427602232442"
+    folder_id = "folders/<sh_infrastructure_folder_id>"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
@@ -192,7 +186,7 @@ projects = {
   "prd-log-mon" = {
     env_code  = "prd"
     app       = "log-mon"
-    folder_id = "folders/427602232442"
+    folder_id = "folders/<sh_infrastructure_folder_id>"
     additional_apis = [
       "pubsub.googleapis.com",
       "storage.googleapis.com",
@@ -202,7 +196,7 @@ projects = {
   "sh-operations" = {
     env_code  = "sh"
     app       = "operations"
-    folder_id = "folders/427602232442"
+    folder_id = "folders/<sh_infrastructure_folder_id>"
     additional_apis = [
       "monitoring.googleapis.com",
       "cloudtrace.googleapis.com",
@@ -252,13 +246,6 @@ hub_nat_config = {
 }
 
 hub_firewall_rules = {
-  "fw-interconnect-deny-egress-default" = {
-    direction   = "EGRESS"
-    priority    = 65534
-    ranges      = ["0.0.0.0/0"]
-    deny        = [{ protocol = "all" }]
-    description = "Default deny all egress"
-  }
   "fw-interconnect-allow-iap-ingress" = {
     direction   = "INGRESS"
     priority    = 1000
@@ -302,13 +289,6 @@ spoke_vpcs = {
       "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
     }
     firewall_rules = {
-      "fw-dev-deny-egress-default" = {
-        direction   = "EGRESS"
-        priority    = 65534
-        ranges      = ["0.0.0.0/0"]
-        deny        = [{ protocol = "all" }]
-        description = "Default deny all egress"
-      }
       "fw-dev-allow-iap-ingress" = {
         direction   = "INGRESS"
         priority    = 1000
@@ -355,12 +335,6 @@ spoke_vpcs = {
       "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
     }
     firewall_rules = {
-      "fw-np-deny-egress-default" = {
-        direction = "EGRESS"
-        priority  = 65534
-        ranges    = ["0.0.0.0/0"]
-        deny      = [{ protocol = "all" }]
-      }
       "fw-np-allow-iap-ingress" = {
         direction = "INGRESS"
         priority  = 1000
@@ -405,12 +379,6 @@ spoke_vpcs = {
       "us-central1" = { nat_ip_allocate_option = "AUTO_ONLY" }
     }
     firewall_rules = {
-      "fw-prd-deny-egress-default" = {
-        direction = "EGRESS"
-        priority  = 65534
-        ranges    = ["0.0.0.0/0"]
-        deny      = [{ protocol = "all" }]
-      }
       "fw-prd-allow-iap-ingress" = {
         direction = "INGRESS"
         priority  = 1000
@@ -441,38 +409,17 @@ private_dns_zones = {
   "private-hub-core" = {
     dns_name    = "accoes.internal."
     description = "ACCO internal private DNS zone (hub)"
-    networks = [
-      # Add VPC self-links after networking apply:
-      # "https://www.googleapis.com/compute/v1/projects/prj-sh-interconnect/global/networks/vpc-interconnect",
-    ]
+    networks    = [] # Hub VPC is automatically attached programmatically
   }
 }
 
-peering_dns_zones = {
-  # Peering zones from each spoke VPC to the hub for accoes.internal resolution
-  # Uncomment and fill in VPC self-links after networking apply.
-  # "peer-dev-to-hub" = {
-  #   dns_name     = "accoes.internal."
-  #   networks     = ["<dev-vpc-self-link>"]
-  #   peer_network = "<hub-vpc-self-link>"
-  # }
-  # "peer-non-prod-to-hub" = {
-  #   dns_name     = "accoes.internal."
-  #   networks     = ["<np-vpc-self-link>"]
-  #   peer_network = "<hub-vpc-self-link>"
-  # }
-  # "peer-prod-to-hub" = {
-  #   dns_name     = "accoes.internal."
-  #   networks     = ["<prd-vpc-self-link>"]
-  #   peer_network = "<hub-vpc-self-link>"
-  # }
-}
+peering_dns_zones = {} # Auto-generated for dev, non-prod, and prod spokes programmatically
 
 forwarding_dns_zones = {
-  # On-prem / Azure forwarding zones
+  # On-prem / Azure forwarding zones (Hub VPC is automatically attached)
   # "onprem-corp" = {
   #   dns_name      = "corp.accoes.com."
-  #   networks      = ["<hub-vpc-self-link>"]
+  #   networks      = []
   #   target_dns_ip = ["192.168.1.53", "192.168.1.54"]
   # }
 }
@@ -493,25 +440,25 @@ iam_bindings = {
   # ── Org-level admin groups ──────────────────────────────────────────────────
   "org/org-admins/org-admin-role" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-organization-admins@accoes.com"
     role          = "roles/resourcemanager.organizationAdmin"
   }
   "org/billing-admins/billing-admin-role" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-billing-admins@accoes.com"
     role          = "roles/billing.admin"
   }
   "org/network-admins/compute-network-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-sh-network-admins@accoes.com"
     role          = "roles/compute.networkAdmin"
   }
   "org/infra-admins/org-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-sh-infrastructure-admins@accoes.com"
     role          = "roles/viewer"
   }
@@ -520,19 +467,19 @@ iam_bindings = {
   # Replace <folder_id_dev> etc. with actual folder IDs from live/org outputs.
   "folder/dev/gcp-dv-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/533502617187"
+    resource_id   = "folders/<dev_folder_id>"
     member        = "group:gcp-dv-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
   "folder/np/gcp-np-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/54798891310"
+    resource_id   = "folders/<non_prod_folder_id>"
     member        = "group:gcp-np-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
   "folder/prd/gcp-prd-admins/folder-admin" = {
     resource_type = "folder"
-    resource_id   = "folders/364072376899"
+    resource_id   = "folders/<prod_folder_id>"
     member        = "group:gcp-prd-admins@accoes.com"
     role          = "roles/resourcemanager.folderAdmin"
   }
@@ -540,7 +487,7 @@ iam_bindings = {
   # ── Business-unit admin groups (example: controls in dev) ──────────────────
   "folder/dv-controls/gcp-dv-controls-admins/editor" = {
     resource_type = "folder"
-    resource_id   = "folders/708275502728"
+    resource_id   = "folders/<bu_folder_id>"
     member        = "group:gcp-dv-controls-admins@accoes.com"
     role          = "roles/editor"
   }
@@ -548,19 +495,19 @@ iam_bindings = {
   # ── Security Admins ────────────────────────────────────────────────────────
   "org/security-admins/viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/viewer"
   }
   "org/security-admins/scc-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/securitycenter.admin"
   }
   "org/security-admins/iam-security-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/iam.securityAdmin"
   }
@@ -568,13 +515,13 @@ iam_bindings = {
   # ── Gemini / AI Users ──────────────────────────────────────────────────────
   "org/gemini-users/discovery-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-gemini-user@accoes.com"
     role          = "roles/discoveryengine.viewer"
   }
   "org/gemini-users/aiplatform-user" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-gemini-user@accoes.com"
     role          = "roles/aiplatform.user"
   }
@@ -582,13 +529,13 @@ iam_bindings = {
   # ── Gemini / AI Admins ─────────────────────────────────────────────────────
   "org/gemini-admins/discovery-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-gemini-admins@accoes.com"
     role          = "roles/discoveryengine.admin"
   }
   "org/gemini-admins/aiplatform-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-gemini-admins@accoes.com"
     role          = "roles/aiplatform.admin"
   }
@@ -596,25 +543,25 @@ iam_bindings = {
   # ── Service Desk Admins ────────────────────────────────────────────────────
   "org/service-desk-admins/viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/viewer"
   }
   "org/service-desk-admins/log-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/logging.viewer"
   }
   "org/service-desk-admins/mon-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/monitoring.viewer"
   }
   "org/service-desk-admins/support-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/cloudsupport.admin"
   }
@@ -622,19 +569,19 @@ iam_bindings = {
   # ── Service Desk Users ─────────────────────────────────────────────────────
   "org/service-desk-users/viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/viewer"
   }
   "org/service-desk-users/log-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/logging.viewer"
   }
   "org/service-desk-users/mon-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "<org_id>"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/monitoring.viewer"
   }
@@ -678,7 +625,7 @@ log_sinks = {
     sink_project_id      = "prj-dv-log-mon"
     sink_name            = "sink-dv-org"
     parent_type          = "folder"
-    parent_id            = "folders/533502617187"
+    parent_id            = "folders/<dev_folder_id>"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-dv-logs-acco-0982"
@@ -698,7 +645,7 @@ log_sinks = {
     sink_project_id      = "prj-np-log-mon"
     sink_name            = "sink-np-org"
     parent_type          = "folder"
-    parent_id            = "folders/54798891310"
+    parent_id            = "folders/<non_prod_folder_id>"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-np-logs-acco-0982"
@@ -715,7 +662,7 @@ log_sinks = {
     sink_project_id      = "prj-prd-log-mon"
     sink_name            = "sink-prd-org"
     parent_type          = "folder"
-    parent_id            = "folders/364072376899"
+    parent_id            = "folders/<prod_folder_id>"
     filter               = ""
     include_children     = true
     bucket_name          = "bkt-prd-logs-acco-0982"

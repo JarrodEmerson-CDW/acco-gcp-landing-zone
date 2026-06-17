@@ -3,6 +3,32 @@ locals {
     managed_by = "terraform"
     component  = "networking"
   })
+
+  # Automatically attach the hub VPC to all private DNS zones
+  private_dns_zones = {
+    for k, v in var.private_dns_zones : k => merge(v, {
+      networks = distinct(concat([module.hub_vpc.network_self_link], v.networks))
+    })
+  }
+
+  # Programmatically peer all spokes to the hub VPC for DNS resolution
+  peering_dns_zones = merge(
+    {
+      for env, spoke in var.spoke_vpcs : "peer-${env}-to-hub" => {
+        dns_name     = "accoes.internal."
+        networks     = [module.spoke_vpcs[env].network_self_link]
+        peer_network = module.hub_vpc.network_self_link
+      }
+    },
+    var.peering_dns_zones
+  )
+
+  # Automatically attach the hub VPC to forwarding DNS zones
+  forwarding_dns_zones = {
+    for k, v in var.forwarding_dns_zones : k => merge(v, {
+      networks = distinct(concat([module.hub_vpc.network_self_link], v.networks))
+    })
+  }
 }
 
 # ─── Hub (interconnect) VPC ───────────────────────────────────────────────────
@@ -64,9 +90,9 @@ module "dns" {
   source = "../../modules/dns"
 
   project_id       = var.project_suffix != "" ? "${var.dns_project_id}-${var.project_suffix}" : var.dns_project_id
-  private_zones    = var.private_dns_zones
-  peering_zones    = var.peering_dns_zones
-  forwarding_zones = var.forwarding_dns_zones
+  private_zones    = local.private_dns_zones
+  peering_zones    = local.peering_dns_zones
+  forwarding_zones = local.forwarding_dns_zones
   labels           = local.common_labels
 
   depends_on = [

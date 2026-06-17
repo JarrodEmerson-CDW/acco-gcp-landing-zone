@@ -42,26 +42,23 @@ Organization: accoes.com
 │   ├── dv-shop/
 │   ├── dv-field/
 │   ├── dv-operations/
-│   ├── dv-administration/
-│   └── dv-branch-plants/
+│   └── dv-administration/
 ├── np/                      (non-prod folder)
 │   └── <same BU subfolders prefixed with np->
 ├── pd/                      (prod folder)
 │   └── <same BU subfolders prefixed with pd->
-├── shared-services/         (code: sh)
-│   ├── networking/
+├── sh/                      (shared services folder, code: sh)
+│   ├── sh-networking/
 │   │   ├── prj-dv-network   (Shared VPC host — dev)
 │   │   ├── prj-np-network   (Shared VPC host — non-prod)
 │   │   ├── prj-pd-network   (Shared VPC host — prod)
 │   │   └── prj-sh-interconnect (hub VPC / Dedicated Interconnect)
-│   └── infrastructure/
+│   └── sh-infrastructure/
 │       ├── prj-dv-logging
 │       ├── prj-np-logging
 │       ├── prj-pd-logging
-│       └── prj-sh-operations
-├── bootstrap/               (code: sh)
-│   └── cicd/
-│       └── prj-sh-cicd      (state bucket, WIF pool, seed SAs)
+│       ├── prj-sh-operations
+│       └── prj-sh-cicd      (state bucket, WIF pool, seed SAs - moved here manually after bootstrap)
 └── sb/                      (sandbox folder)
 ```
 
@@ -151,8 +148,8 @@ export GITHUB_ORG=accoes
 export GITHUB_REPO=accoes/GCP-Infra-Landing-Zones
 export SA_NAME=acco-sa-terraform
 export BUCKET_NAME=bkt-acco-tf-state-sh
-export ORG_ID="YOUR_ORGANIZATION_ID_HERE" # e.g., 123456789012
-export BILLING_ACCOUNT_ID="YOUR_BILLING_ACCOUNT_ID_HERE" # e.g., 012345-6789AB-CDEF01
+export ORG_ID=80203213781
+export BILLING_ACCOUNT_ID=018112-5645D3-F1B84F
 
 # 2. GCS bucket to hold Terraform state (versioned, locked down)
 gcloud storage buckets create "gs://${BUCKET_NAME}" \
@@ -160,6 +157,8 @@ gcloud storage buckets create "gs://${BUCKET_NAME}" \
   --location=us-west2 \
   --uniform-bucket-level-access \
   --public-access-prevention
+
+# 2.1 Enable bucket versioning (critical for state)
 gcloud storage buckets update "gs://${BUCKET_NAME}" --versioning
 
 # 3. Create the Service Account
@@ -223,6 +222,12 @@ gcloud services enable pubsub.googleapis.com --project="${PROJECT_ID}"
 #     This is a Bash script designed to be executed directly in your Cloud Shell terminal.
 #     It uses a loop to programmatically assign the representative set of org-level roles
 #     defined below to the deployment Service Account in a single run.
+#
+#     Ensure environment variables from Step 1 are set in your current session:
+#     export ORG_ID=organization-id
+#     export SA_NAME=service-account-name
+#     export PROJECT_ID=gcp-project-id
+#
 for ROLE in \
   roles/resourcemanager.folderAdmin \
   roles/resourcemanager.projectCreator \
@@ -253,11 +258,20 @@ done
 
 echo "All roles have been processed!"
 
-# 13. Grant Billing Account User role on the Billing Account
+# 13. Grant Billing Account User and Billing Account Costs Manager roles on the Billing Account
+#     Ensure environment variables from Step 1 are set in your current session:
+#     export BILLING_ACCOUNT_ID=xxxxxx-xxxxxx-xxxxxx
+#     export SA_NAME=service-account-name
+#     export PROJECT_ID=gcp-project-id
 
 gcloud billing accounts add-iam-policy-binding "${BILLING_ACCOUNT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/billing.user"
+
+gcloud billing accounts add-iam-policy-binding "${BILLING_ACCOUNT_ID}" \
+  --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/billing.costsManager"
+
 ```
 
 ### Step 1 — Org (folder hierarchy + org policies)
