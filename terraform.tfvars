@@ -74,7 +74,7 @@ business_units = [
   "field",
   "operations",
   "administration",
-  "branch-plants", # placeholder — no child resources created by default
+  "branch-plants",
 ]
 
 # =============================================================================
@@ -493,128 +493,65 @@ iam_bindings = {
   # ── Org-level admin groups ──────────────────────────────────────────────────
   "org/org-admins/org-admin-role" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-organization-admins@accoes.com"
+    resource_id   = "{org_id}"
+    member        = "group:gcp-org-admins@accoes.com"
     role          = "roles/resourcemanager.organizationAdmin"
+  }
+  "org/org-admins/viewer-role" = {
+    resource_type = "organization"
+    resource_id   = "{org_id}"
+    member        = "group:gcp-org-admins@accoes.com"
+    role          = "roles/viewer"
   }
   "org/billing-admins/billing-admin-role" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-billing-admins@accoes.com"
     role          = "roles/billing.admin"
-  }
-  "org/network-admins/compute-network-admin" = {
-    resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-sh-network-admins@accoes.com"
-    role          = "roles/compute.networkAdmin"
-  }
-  "org/infra-admins/org-viewer" = {
-    resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-sh-infrastructure-admins@accoes.com"
-    role          = "roles/viewer"
-  }
-
-  # ── Per-env admin groups ───────────────────────────────────────────────────
-  # Replace <folder_id_dev> etc. with actual folder IDs from live/org outputs.
-  "folder/dev/gcp-dv-admins/folder-admin" = {
-    resource_type = "folder"
-    resource_id   = "folders/533502617187"
-    member        = "group:gcp-dv-admins@accoes.com"
-    role          = "roles/resourcemanager.folderAdmin"
-  }
-  "folder/np/gcp-np-admins/folder-admin" = {
-    resource_type = "folder"
-    resource_id   = "folders/54798891310"
-    member        = "group:gcp-np-admins@accoes.com"
-    role          = "roles/resourcemanager.folderAdmin"
-  }
-  "folder/prd/gcp-prd-admins/folder-admin" = {
-    resource_type = "folder"
-    resource_id   = "folders/364072376899"
-    member        = "group:gcp-prd-admins@accoes.com"
-    role          = "roles/resourcemanager.folderAdmin"
-  }
-
-  # ── Business-unit admin groups (example: controls in dev) ──────────────────
-  "folder/dv-controls/gcp-dv-controls-admins/editor" = {
-    resource_type = "folder"
-    resource_id   = "folders/708275502728"
-    member        = "group:gcp-dv-controls-admins@accoes.com"
-    role          = "roles/editor"
   }
 
   # ── Security Admins ────────────────────────────────────────────────────────
   "org/security-admins/viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/viewer"
   }
   "org/security-admins/scc-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/securitycenter.admin"
   }
   "org/security-admins/iam-security-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-security-admins@accoes.com"
     role          = "roles/iam.securityAdmin"
-  }
-
-  # ── Gemini / AI Users ──────────────────────────────────────────────────────
-  "org/gemini-users/discovery-viewer" = {
-    resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-gemini-user@accoes.com"
-    role          = "roles/discoveryengine.viewer"
-  }
-  "org/gemini-users/aiplatform-user" = {
-    resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-gemini-user@accoes.com"
-    role          = "roles/aiplatform.user"
-  }
-
-  # ── Gemini / AI Admins ─────────────────────────────────────────────────────
-  "org/gemini-admins/discovery-admin" = {
-    resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-gemini-admins@accoes.com"
-    role          = "roles/discoveryengine.admin"
-  }
-  "org/gemini-admins/aiplatform-admin" = {
-    resource_type = "organization"
-    resource_id   = "823534780982"
-    member        = "group:gcp-gemini-admins@accoes.com"
-    role          = "roles/aiplatform.admin"
   }
 
   # ── Service Desk Admins ────────────────────────────────────────────────────
   "org/service-desk-admins/viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/viewer"
   }
   "org/service-desk-admins/log-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/logging.viewer"
   }
   "org/service-desk-admins/mon-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/monitoring.viewer"
   }
   "org/service-desk-admins/support-admin" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-admins@accoes.com"
     role          = "roles/cloudsupport.admin"
   }
@@ -622,41 +559,273 @@ iam_bindings = {
   # ── Service Desk Users ─────────────────────────────────────────────────────
   "org/service-desk-users/viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/viewer"
   }
   "org/service-desk-users/log-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/logging.viewer"
   }
   "org/service-desk-users/mon-viewer" = {
     resource_type = "organization"
-    resource_id   = "823534780982"
+    resource_id   = "{org_id}"
     member        = "group:gcp-service-desk-users@accoes.com"
     role          = "roles/monitoring.viewer"
   }
 
-  # ── USER group bindings (empty by default — add per app) ───────────────────
-  # "project/prj-dv-controls-app1/gcp-dv-controls-users/viewer" = {
-  #   resource_type = "project"
-  #   resource_id   = "prj-dv-controls-app1"
-  #   member        = "group:gcp-dv-controls-users@accoes.com"
-  #   role          = "roles/viewer"
-  # }
+  # ── Environment Folder Admins ──────────────────────────────────────────────
+  "folder/dev/gcp-dv-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_folder_id}"
+    member        = "group:gcp-dv-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/gcp-np-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_folder_id}"
+    member        = "group:gcp-np-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/prd/gcp-pd-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_folder_id}"
+    member        = "group:gcp-pd-admins@accoes.com"
+    role          = "roles/owner"
+  }
 
-  # ── Example time-bound condition (break-glass access) ─────────────────────
-  # "org/breakglass/temp-admin" = {
-  #   resource_type = "organization"
-  #   resource_id   = "123456789012"
-  #   member        = "group:gcp-breakglass@accoes.com"
-  #   role          = "roles/resourcemanager.organizationAdmin"
-  #   condition = {
-  #     title      = "expires_2025_12_31"
-  #     expression = "request.time < timestamp('2025-12-31T00:00:00Z')"
-  #   }
+  # ── Network Folder Admins ──────────────────────────────────────────────────
+  "folder/network/gcp-network-admins/compute-network-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/{network_folder_id}"
+    member        = "group:gcp-network-admins@accoes.com"
+    role          = "roles/compute.networkAdmin"
+  }
+  "folder/network/gcp-network-admins/compute-security-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/{network_folder_id}"
+    member        = "group:gcp-network-admins@accoes.com"
+    role          = "roles/compute.securityAdmin"
+  }
+
+  # ── Infrastructure Folder Admins ───────────────────────────────────────────
+  "folder/infra/gcp-infrastructure-admins/logging-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/{infra_folder_id}"
+    member        = "group:gcp-infrastructure-admins@accoes.com"
+    role          = "roles/logging.admin"
+  }
+  "folder/infra/gcp-infrastructure-admins/iam-security-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/{infra_folder_id}"
+    member        = "group:gcp-infrastructure-admins@accoes.com"
+    role          = "roles/iam.securityAdmin"
+  }
+  "folder/infra/gcp-infrastructure-admins/monitoring-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/{infra_folder_id}"
+    member        = "group:gcp-infrastructure-admins@accoes.com"
+    role          = "roles/monitoring.admin"
+  }
+  "folder/infra/gcp-infrastructure-admins/compute-admin" = {
+    resource_type = "folder"
+    resource_id   = "folders/{infra_folder_id}"
+    member        = "group:gcp-infrastructure-admins@accoes.com"
+    role          = "roles/compute.admin"
+  }
+  "folder/infra/gcp-infrastructure-admins/project-creator" = {
+    resource_type = "folder"
+    resource_id   = "folders/{infra_folder_id}"
+    member        = "group:gcp-infrastructure-admins@accoes.com"
+    role          = "roles/resourcemanager.projectCreator"
+  }
+
+  # ── Development (DV) BU Folder Admins ──────────────────────────────────────
+  "folder/dv/controls/gcp-dv-controls-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_controls_folder_id}"
+    member        = "group:gcp-dv-controls-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/facilities/gcp-dv-facilities-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_facilities_folder_id}"
+    member        = "group:gcp-dv-facilities-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/construction/gcp-dv-construction-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_construction_folder_id}"
+    member        = "group:gcp-dv-construction-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/engineering/gcp-dv-engineering-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_engineering_folder_id}"
+    member        = "group:gcp-dv-engineering-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/shop/gcp-dv-shop-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_shop_folder_id}"
+    member        = "group:gcp-dv-shop-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/field/gcp-dv-field-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_field_folder_id}"
+    member        = "group:gcp-dv-field-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/operations/gcp-dv-operations-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_operations_folder_id}"
+    member        = "group:gcp-dv-operations-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/administration/gcp-dv-administration-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_administration_folder_id}"
+    member        = "group:gcp-dv-administration-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/dv/branch-plants/gcp-dv-branch-plants-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{dv_branch_plants_folder_id}"
+    member        = "group:gcp-dv-branch-plants-admins@accoes.com"
+    role          = "roles/owner"
+  }
+
+  # ── Non-Production (NP) BU Folder Admins ───────────────────────────────────
+  "folder/np/controls/gcp-np-controls-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_controls_folder_id}"
+    member        = "group:gcp-np-controls-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/facilities/gcp-np-facilities-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_facilities_folder_id}"
+    member        = "group:gcp-np-facilities-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/construction/gcp-np-construction-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_construction_folder_id}"
+    member        = "group:gcp-np-construction-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/engineering/gcp-np-engineering-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_engineering_folder_id}"
+    member        = "group:gcp-np-engineering-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/shop/gcp-np-shop-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_shop_folder_id}"
+    member        = "group:gcp-np-shop-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/field/gcp-np-field-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_field_folder_id}"
+    member        = "group:gcp-np-field-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/operations/gcp-np-operations-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_operations_folder_id}"
+    member        = "group:gcp-np-operations-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/administration/gcp-np-administration-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_administration_folder_id}"
+    member        = "group:gcp-np-administration-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/np/branch-plants/gcp-np-branch-plants-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{np_branch_plants_folder_id}"
+    member        = "group:gcp-np-branch-plants-admins@accoes.com"
+    role          = "roles/owner"
+  }
+
+  # ── Production (PD) BU Folder Admins ───────────────────────────────────────
+  "folder/pd/controls/gcp-pd-controls-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_controls_folder_id}"
+    member        = "group:gcp-pd-controls-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/facilities/gcp-pd-facilities-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_facilities_folder_id}"
+    member        = "group:gcp-pd-facilities-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/construction/gcp-pd-construction-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_construction_folder_id}"
+    member        = "group:gcp-pd-construction-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/engineering/gcp-pd-engineering-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_engineering_folder_id}"
+    member        = "group:gcp-pd-engineering-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/shop/gcp-pd-shop-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_shop_folder_id}"
+    member        = "group:gcp-pd-shop-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/field/gcp-pd-field-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_field_folder_id}"
+    member        = "group:gcp-pd-field-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/operations/gcp-pd-operations-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_operations_folder_id}"
+    member        = "group:gcp-pd-operations-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/administration/gcp-pd-administration-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_administration_folder_id}"
+    member        = "group:gcp-pd-administration-admins@accoes.com"
+    role          = "roles/owner"
+  }
+  "folder/pd/branch-plants/gcp-pd-branch-plants-admins/owner" = {
+    resource_type = "folder"
+    resource_id   = "folders/{pd_branch_plants_folder_id}"
+    member        = "group:gcp-pd-branch-plants-admins@accoes.com"
+    role          = "roles/owner"
+  }
+
+  # ── Commented Examples ─────────────────────────────────────────────────────
+  #
+  # # 1. Specific App Project Admins
+  # "project/prj-dv-controls-app1/gcp-dv-controls-app1-admins/owner" = {
+  #   resource_type = "project"
+  #   resource_id   = "{project_id}"
+  #   member        = "group:gcp-dv-controls-app1-admins@accoes.com"
+  #   role          = "roles/owner"
+  # }
+  #
+  # # 2. Specific App Project Users
+  # "project/prj-dv-controls-app1/gcp-dv-controls-app1-users/viewer" = {
+  #   resource_type = "project"
+  #   resource_id   = "{project_id}"
+  #   member        = "group:gcp-dv-controls-app1-users@accoes.com"
+  #   role          = "roles/viewer"
   # }
 }
 
